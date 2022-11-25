@@ -33,6 +33,30 @@ function selectOption()
     done
 }
 
+# Function to add a digitron
+# param 1 - name of digitron
+# param 2 - starting health
+# param 3 - attribute of digitron (ie. water, fire, earth, wind)
+# param 4 - attack power of digitron
+function addDigitron()
+{
+    # If directory .digitrons does not exist, create it
+    if [ ! -d ./.digitrons ]
+        then mkdir .digitrons
+    fi
+    
+    # If a file with the name of the digitron does not exist, create it
+    if [ ! -a ./.digitrons/"$1" ]
+        then echo "" > ./.digitrons/"$1".digi
+    fi
+
+    # Add each parameter to the .digi file
+    for arg in "$@"
+    do
+        echo "$arg" >> ./.digitrons/"$1".digi
+    done
+}
+
 # Function when the player dies
 function dead()
 {
@@ -140,7 +164,9 @@ if [ $x -eq 1 ]
 elif [ $x -eq 3 ]
     then
         echo -e "\n'Well shoot, you coulda just said so. Here, have my starter one.'"; read -srn 1
-        echo "From his backpack, he takes out a small, glowing ball."
+        echo "From his backpack, he takes out a small, glowing ball."; read -srn 1
+        echo "'Here, this is Pip. You can have him. Now let's PLAY!'"; read -srn 1
+        addDigitron "Pip" 100 "Water" 10
 fi
 
 
