@@ -102,6 +102,7 @@ function fight()
                             echo "Yah yeet"
                             break
                             ;;
+                            #"Other commands TODO")
                         *) echo "Unknown command. Type 'help' if you are stuck)"
                             ;;
                     esac
