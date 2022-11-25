@@ -11,6 +11,28 @@ function onExit()
     exit
 }
 
+# Function to select input and return which they picked
+# Just do: selectOption "option 1" "option 2" "option 3"
+# Returns 1, 2 or 3 for option selected
+function selectOption()
+{
+    select response in "$1" "$2" "$3"
+    do
+        if [ "$response" = "$1" ]
+            then return 1
+        elif [ "$response" = "$2" ]
+            then return 2
+        elif [ "$response" = "$3" ]
+            then return 3
+        # Player did not enter anything
+        elif [ "$response" = "" ]
+            then
+                echo "Invalid response. Please enter 1, 2, or 3"
+                continue
+        fi
+    done
+}
+
 # Function when the player dies
 function dead()
 {
@@ -66,6 +88,7 @@ echo "Press any key to continue dialogue"
 read -srn 1
 tput clear
 
+# Story part, using read -srn 1 to let the user decide when to move on to the next dialogue
 echo "You open your eyes, a subtle pain lingering through your head."; read -srn 1
 echo "Streaks of sunlight enter the window to your small cottage room."; read -srn 1
 echo "You have an aching feeling that you are forgetting something..."; read -srn 1
@@ -73,30 +96,52 @@ echo -e "\nYou think to yourself: 'What could it be? What was I meant to do toda
 echo "'Aha!', you proclaim. 'Today is the first day of the digitron tournaments!'"; read -srn 1
 echo -e "\nExcitement suddenly fills your body. Memories of watching your childhood heroes"
 echo " win the championship flood your mind. Then, a wave of dread."; read -srn 1
-echo -e "'I don't have a digitron yet... what am I going to do.....'\n"; read -srn 1
-echo -e "Your mom enters the room: 'Honey! It's already 10:00 am! Get up, or you're gonna be late!'\n"; read -srn 1
+echo "'I don't have a digitron yet... what am I going to do.....'"; read -srn 1
+echo -e "\nYour mom enters the room: 'Honey! It's already 10:00 am! Get up, or you're gonna be late!'\n"; read -srn 1
 
-select response in "Late to what??"  "Go away! I want to sleep!!" "Gotcha! Getting ready now!"
+# Giving the user 3 dialogue options, my preference to that of a case selection
+selectOption "Late to what??" "Go away! I want to sleep!!" "Gotcha! Getting ready now!"
+x=$?
+
+# Option 1 will not progress, as it just gives some exposition
+while [ $x -eq 1 ]
 do
-    if [ "$response" = "Late to what??" ]
-        then echo "'You don't remember? You have to get your grandfather's newspaper.', she explains."
-    elif [ "$response" = "Go away! I want to sleep!!" ]
-        then
-            sleep 1
-            dead
-    elif [ "$response" = "Gotcha! Getting ready now!" ]
-        then
-            echo "Cool, thanks"
-            break
-    elif [ "$response" = "" ]
-        then
-            echo "Please enter something"
-            continue
-    else
-        echo "Invalid response. Please enter 1, 2, or 3"
-        continue
-    fi
+    echo -e "\n'You don't remember? You have to get your grandfather's newspaper.', she explains."
+    selectOption "Late to what??" "Go away! I want to sleep!!" "Gotcha! Getting ready now!"
+    x=$?
 done
+
+# Option 2 makes the player die and option 3 progresses the story
+if [ $x -eq 2 ]
+    then
+        sleep 1
+        dead
+elif [ $x -eq 3 ]
+    then
+        echo -e "\nYou change into some going-out clothes and brush your teeth. 'Bye Mom!', you say as you walk out of the door."; read -srn 1
+fi
+
+echo "As you make your way to your grandfather's house, you see a kid with some big goofy goggles."; read -srn 1
+echo -e "'Hey, wanna f-f-fight?', he questions.\n"; read -srn 1
+
+selectOption "Get lost, kid" "What do you mean, fight?" "I don't have a digitron yet..."
+x=$?
+
+# Option 2 gives exposition, but option 1 or 3 progress the story 
+while [ $x -eq 2 ]
+do
+    echo -e "\n'Um... what were you born yesterday? I mean we summon our digitrons and FIGHT!', he says."
+    selectOption "Get lost, kid" "What do you mean, fight?" "I don't have a digitron yet..."
+    x=$?
+done
+
+if [ $x -eq 1 ]
+    then echo "'Whatever... rude', he says."
+elif [ $x -eq 3 ]
+    then
+        echo -e "\n'Well shoot, you coulda just said so. Here, have my starter one.'"; read -srn 1
+        echo "From his backpack, he takes out a small, glowing ball."
+fi
 
 
 
