@@ -34,26 +34,86 @@ function selectOption()
 }
 
 # Function to add a digitron
-# param 1 - name of digitron
-# param 2 - starting health
-# param 3 - attribute of digitron (ie. water, fire, earth, wind)
-# param 4 - attack power of digitron
+# param 1 - name of digitron    health    attribute
+# param 2+ - attack name    attack damage
 function addDigitron()
 {
     # If directory .digitrons does not exist, create it
     if [ ! -d ./.digitrons ]
         then mkdir .digitrons
     fi
+
+    # Getting digitron name from first line
+    digitronName=$(echo "$1" | gawk '{print $1}')
+    #echo "$digitronName"
     
     # If a file with the name of the digitron does not exist, create it
-    if [ ! -a ./.digitrons/"$1" ]
-        then echo "" > ./.digitrons/"$1".digi
+    if [ ! -a ./.digitrons/"$digitronName" ]
+        then echo -n "" > ./.digitrons/"$digitronName".digi
     fi
 
     # Add each parameter to the .digi file
     for arg in "$@"
     do
-        echo "$arg" >> ./.digitrons/"$1".digi
+        echo "$arg" >> ./.digitrons/"$digitronName".digi
+    done
+}
+
+# Function to start a fight between two digitrons
+# param 1 - name of player's starting digitron
+# param 2 - name of enemy digitron
+function fight()
+{
+    # Variables store health of each player
+    playerHealth=$(gawk 'NR==1{print $2}' ./.digitrons/"$1".digi)
+    enemyHealth=$(gawk 'NR==1{print $2}' ./.digitrons/"$2".digi)
+
+    # Variable to keep track of which turn it is (0 for yours, 1 for opponent)
+    turn=0
+
+    # Main while loop to show digitrons and their health
+    while [ "$enemyHealth" != "0" ]
+    do
+        tput clear
+        echo "Starting fight! (type 'help' if you are stuck)"
+        echo "$1 ($playerHealth) vs $2 ($enemyHealth)"
+        echo "------------------------------------------------------------------"
+
+        # Determine who's turn it is
+        if [ $turn -eq 0 ]
+            then 
+                while true
+                do
+                    echo -n "Your turn: "
+                    read -r command
+
+                    # Understanding player input
+                    case "$command" in
+                        "help")
+                            echo "------------------------------------------------------------------"
+                            echo "Here is a list of available commands (they are case sensitive):"
+                            echo "ls - list available moves"
+                            echo "cd - change digitron, do 'cd ..' to list all digitrons"
+                            echo "cat [digitron] - get the information of a provided digitron"
+                            echo "./[move] - perform a move, ex. './Punch'"
+                            echo "------------------------------------------------------------------"
+                            ;;
+                        "Punch"|"punch")
+                            echo "Yah yeet"
+                            break
+                            ;;
+                        *) echo "Unknown command. Type 'help' if you are stuck)"
+                            ;;
+                    esac
+                done
+                turn=1
+        else 
+            # The opponent's turn
+            echo "Opponent does something"
+            turn=0
+        fi
+
+        echo "Turn ending, switching to other player"; read -srn 1
     done
 }
 
@@ -166,9 +226,11 @@ elif [ $x -eq 3 ]
         echo -e "\n'Well shoot, you coulda just said so. Here, have my starter one.'"; read -srn 1
         echo "From his backpack, he takes out a small, glowing ball."; read -srn 1
         echo "'Here, this is Pip. You can have him. Now let's PLAY!'"; read -srn 1
-        addDigitron "Pip" 100 "Water" 10
+        addDigitron "Pip    100    Water" "Punch    10" "Kick    15"
+        addDigitron "BasicEnemy    20    Fire" "Punch    5"
+        fight "Pip" "BasicEnemy"
 fi
 
-
+read -srn 1
 
 echo "TODO"
