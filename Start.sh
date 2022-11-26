@@ -99,7 +99,7 @@ function fight()
                             echo "------------------------------------------------------------------"
                             ;;
                         ls)
-                            echo "Available moves are: Punch, Stun, Heal, Block"
+                            echo "Available moves are: $(gawk 'NR!=1{print $1}' ./.digitrons/"$1".digi)"
                             ;;
                         # cat $1)
 
@@ -125,6 +125,8 @@ function fight()
 
         echo "Turn ending, switching to other player"; read -srn 1
     done
+    echo "Congrats, you've won"
+    echo "------------------------------------------------------------------"
 }
 
 # Function when the player dies
@@ -138,6 +140,7 @@ function dead()
     echo "Thank you for playing our game!"
     printf "\t-Isaac Fernandes\n"
     printf "\t-Nelson Suarez\n"
+    sleep 1
     exit
 }
 
@@ -209,6 +212,7 @@ done
 if [ $x -eq 2 ]
     then
         sleep 1
+        echo "It's all a dream..."
         dead
 elif [ $x -eq 3 ]
     then
@@ -243,4 +247,30 @@ fi
 
 read -srn 1
 
-echo "TODO"
+echo "Well, I don't know how, but you beat me kid-"; read -srn 1
+echo "Kid with big goofy goggles runs away crying, he must be a sore loser"; read -srn 1
+sleep 1
+echo "Hmm... Seems like in his despair, the kid has dropped something"
+sleep 1
+cat ./.asciiArt/digitronBall
+sleep 1
+echo -e "\nDo you ..."
+selectOption "Grab his digitron" "Leave it for someone else" "Kick it away"
+x=$?
+if [ $x -eq 1 ]
+    then 
+        echo -e "Now you have his Digitron! This might come in handy later"
+        echo -n "What would you like to name your new digitron? > "
+        read -r digiName
+        addDigitron "$digiName    20    Fire" "Punch    5"
+elif [ $x -eq 2 ]
+    then
+        echo "Alright, let's keep going!"
+elif [ $x -eq 3 ]
+    then
+        echo "This has caused the digitron to break lose!"
+        sleep 1
+        fight "Pip" "BasicEnemy"
+fi
+
+echo "Alright, lets keep going to gramps"
