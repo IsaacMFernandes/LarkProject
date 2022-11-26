@@ -65,9 +65,9 @@ function addDigitron()
 function fight()
 {
     # Variables store health of each player
-    playerHealth=$(gawk 'NR==1{print $2}' ./.digitrons/"$1".digi)
-    enemyHealth=$(gawk 'NR==1{print $2}' ./.digitrons/"$2".digi)
-
+    local playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$1".digi)
+    local enemyHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$2".digi)
+    local punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$1".digi)
     # Variable to keep track of which turn it is (0 for yours, 1 for opponent)
     turn=0
 
@@ -76,7 +76,7 @@ function fight()
     do
         tput clear
         echo "Starting fight! (type 'help' if you are stuck)"
-        echo "$1 ($playerHealth) vs $2 ($enemyHealth)"
+        echo "$1 ($playerHealth) ($punchPower) vs $2 ($enemyHealth)"
         echo "------------------------------------------------------------------"
 
         # Determine who's turn it is
@@ -98,8 +98,17 @@ function fight()
                             echo "./[move] - perform a move, ex. './Punch'"
                             echo "------------------------------------------------------------------"
                             ;;
+                        ls)
+                            echo "Available moves are: Punch, Stun, Heal, Block"
+                            ;;
+                        # cat $1)
+
+                        # break
+                        # ;;
                         "Punch"|"punch")
                             echo "Yah yeet"
+                            enemyHealth="$((enemyHealth-punchPower))"
+                            echo "$2's health is now: $enemyHealth"
                             break
                             ;;
                             #"Other commands TODO")
