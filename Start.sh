@@ -289,7 +289,7 @@ echo "Alright, lets keep going to gramps"; read -srn 1
 echo "As you make your way to gramps, you see a shortcut"; read -srn 1
 echo "you take it and all of the sudden a digitron jumps out at you (...this seems to happen often)"; read -srn 1
 sleep 1
-addDigitron "BasicEnemyStrong    40    Fire" "Punch    10"
+addDigitron "BasicEnemyStrong    40    Water" "Punch    20" "Kick    20" "Waterth    30"
 fight "Pip" "BasicEnemyStrong"
 
 echo -e "\nCool, you beat them, now, do you... "
