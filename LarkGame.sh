@@ -84,7 +84,7 @@ function fight()
             then 
                 while true
                 do
-                    if [ $playerHealth -le 0 ] #cheks if you're not ded yet
+                    if [ "$playerHealth" -le 0 ] #cheks if you're not ded yet
                         then
                             echo "$2 has defeated you :("; read -srn 1
                             dead
@@ -110,8 +110,8 @@ function fight()
                         cat ./.digitrons/"$1".digi
                         break
                         ;;
-                        "Punch"|"punch")
-                            echo "Yah yeet"
+                        "./Punch"|"./punch")
+                            echo ""
                             enemyHealth="$((enemyHealth-punchPower))" #lower enemy health by attack amt
                             echo "$2's health is now: $enemyHealth"
                             break
