@@ -330,7 +330,7 @@ elif [ $x -eq 3 ]
         echo "They liked it, in return they pee on your shoe ... womp womp"
         sleep 1
 fi
-TODO
+#TODO
 #to continue, go back to gramps if gotten paper then gramps says ddint have to but thanks then talks about linux from his old computer????
 #if didnt get paper then he says dont worry about it go to the tournament, I used to be the very best (quirky funny reference)
 #gives you a choice of three random digis?
