@@ -68,9 +68,13 @@ function fight()
     # My editor was yelling at me to separate the declaration and assignment
     local playerHealth
     local enemyHealth
+    levelAdjustment=$((level*5))
+    levelHealthAdjustment=$((level*15))
+
+    # Adjusting player health by their level - starting at 0, going up by 15
     playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$1".digi)
+    playerHealth=$((playerHealth+levelHealthAdjustment))
     enemyHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$2".digi)
-    
 
     # Variable to keep track of which turn it is (0 for yours, 1 for opponent)
     turn=0
@@ -79,6 +83,7 @@ function fight()
     while [ "$enemyHealth" -gt "0"  ]
     do
         tput clear
+        echo "$name - level $level"
         echo "$1 ($playerHealth) vs $2 ($enemyHealth)"
         echo "Fight! (type 'help' if you are stuck)"
         echo "------------------------------------------------------------------"
@@ -128,8 +133,9 @@ function fight()
                         # Punch move
                         "./Punch"|"./punch")
                             punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$1".digi)
+                            punchPower=$((punchPower+levelAdjustment))
 
-                            echo "$1 swings his arm and launches a right hook right at his opponent!"
+                            echo "$1 launches a right hook dealing $punchPower damage!"
 
                             #lower enemy health by attack amount
                             enemyHealth="$((enemyHealth-punchPower))"; sleep 1
@@ -137,14 +143,15 @@ function fight()
 
                             break
                             ;;
-                        # Punch move
+                        # Kick move
                         "./Kick"|"./kick")
-                            punchPower=$(gawk 'NR==3{print int($2)}' ./.digitrons/"$1".digi)
+                            kickPower=$(gawk 'NR==3{print int($2)}' ./.digitrons/"$1".digi)
+                            kickPower=$((kickPower+levelAdjustment))
 
-                            echo "$1 !"
+                            echo "$1 deals a massive kick to $2's midsection, dealing $kickPower damage!"
 
                             #lower enemy health by attack amount
-                            enemyHealth="$((enemyHealth-punchPower))"; sleep 1
+                            enemyHealth="$((enemyHealth-kickPower))"; sleep 1
                             echo "$2's health is now: $enemyHealth"; sleep 1
 
                             break
@@ -197,7 +204,15 @@ function fight()
 
     # Win condition
     echo "Congrats, you've won"
+    levelUp
     echo "------------------------------------------------------------------"
+}
+
+# Function to level up
+function levelUp()
+{
+    level=$((level+1))
+    echo "~~~ You have leveled up! You are now level $level ~~~"
 }
 
 # Function when the player dies
@@ -239,14 +254,16 @@ echo -n "What is your name? > "
 read -r name
 
 # Save player name, or recognize existing player
-if [ "$(gawk '{print $1}' ./player.dat)" = "$name" ]
+if [ "$(gawk 'NR==1{print $1}' ./player.dat)" = "$name" ]
     then
         echo "Welcome back $name"
 else
     echo "Hello $name"
-    echo "$name" > player.dat
 fi
 
+# Erasing everything in the player.dat file, to start over with owned digitrons
+echo "$name" > player.dat
+level=0
 sleep 1
 
 #TODO
@@ -313,13 +330,19 @@ elif [ $x -eq 3 ]
         echo -e "\n'Well shoot, you coulda just said so. Here, have my starter one.'"; read -srn 1
         echo "From his backpack, he takes out a small, glowing ball."; read -srn 1
         echo "'Here, this is Pip. You can have him. Now let's PLAY!'"; read -srn 1
-        addDigitron "Pip    100    Water" "Punch    10" "Kick    15"
+        addDigitron "Pip    100    Water" "Punch    10"
+        echo "Pip" >> ./player.dat
         addDigitron "Goofy    20    Fire" "Punch    5" "Kick   10" "Fireth     15"
         fight "Pip" "Goofy"
-        echo "'Well, I don't know how, but you beat me...'"; read -srn 1
+        
 fi
 
-# Kid runs away whether player says get lost or we beat him
+# Unlocking a new move
+echo "Kick    15" >> ./.digitrons/Pip.digi
+echo "~~~ You have unlocked a new move: Kick ~~~"; read -srn 1
+
+# Kid runs away, drops digitron ball
+echo "'Well, I don't know how, but you beat me...'"; read -srn 1
 echo -e "\nKid with big goofy goggles runs away crying."; read -srn 1
 echo "Hmm... Seems like in his despair, the kid has dropped something."; read -srn 1
 
@@ -390,7 +413,7 @@ fi
 # Getting to grandpa's
 echo "Alright, you finally make it to your grandpa's and... "; read -srn 1
 echo "You forgot his newspaper."; read -srn 1
-echo "'Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?'"; read -srn 1
+echo -e "\n'Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?'"; read -srn 1
 
 # Responding to a newspaperless grandpa
 selectOption "Go back and get it" "Make up a lie" "Just tell the truth"
@@ -401,7 +424,7 @@ if [ $x -eq 1 ]
     then 
         echo -e "You go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"
-        addDigitron "BasicEnemyStrong    40    Water" "Punch    20" "Kick    20" "Waterth    30"
+        addDigitron "BasicEnemyStrong    40    Water" "Punch    25" "Kick    25" "Waterth    35"
         fight "Pip" "BasicEnemyStrong"
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
