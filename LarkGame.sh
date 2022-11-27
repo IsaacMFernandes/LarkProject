@@ -178,7 +178,7 @@ function fight()
                         "DebugPunch")
                             enemyHealth="$((enemyHealth-1000000))"
                             break
-                        ;;
+                            ;;
                         *) echo "Unknown command. Type 'help' if you are stuck)"
                             ;;
                     esac
@@ -452,42 +452,29 @@ if [ $hasNewspaper -eq 1 ]
         echo "You make finally arrive to your grandpa's (again) and hand him his newspaper"; read -srn 1
         echo "'What's got you looking so worried boy?'"; read -srn 1
         echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
-        echo "Oh, I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
-        echo "Which move would you like to learn?"; read -srn 1
-        selectOption "Heal" "Stun" "Charged attack"
-        x=$?
-        #TODO moves
-        if [ $x -eq 1 ]
-            then 
-                TODO #learn Heal
-        elif [ $x -eq 2 ]
-            then
-                TODO #Learn Stun
-        elif [ $x -eq 3 ]
-            then
-                TODO
-                #Learn Charged attack
-        fi
+        
 elif [ $hasNewspaper -eq 0 ]
     then    
         echo "'Oh.. That's alright boy whats got you so worked up?'"; read -srn 1
         echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
-        echo "Oh, I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
-        echo "Which move would you like to learn?"; read -srn 1
-        selectOption "Heal" "Stun" "Charged attack"
-        x=$?
-        #TODO moves
-        if [ $x -eq 1 ]
-            then 
-                TODO #learn Heal
-        elif [ $x -eq 2 ]
-            then
-                TODO #Learn Stun
-        elif [ $x -eq 3 ]
-            then
-                TODO
-                #Learn Charged attack
-        fi
+fi
+
+echo "Oh how I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
+echo "Which move would you like to learn?"; read -srn 1
+selectOption "Heal" "Stun" "Charged attack"
+x=$?
+
+#TODO moves
+if [ $x -eq 1 ]
+    then 
+        TODO #learn Heal
+elif [ $x -eq 2 ]
+    then
+        TODO #Learn Stun
+elif [ $x -eq 3 ]
+    then
+        TODO
+        #Learn Charged attack
 fi
 
 echo "'Alright boy, let's try your new move'"; read -srn 1
