@@ -65,9 +65,14 @@ function addDigitron()
 function fight()
 {
     # Variables store health of each player
-    local playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$1".digi)
-    local enemyHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$2".digi)
-    local punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$1".digi)
+    # My editor was yelling at me to separate the declaration and assignment
+    local playerHealth
+    local enemyHealth
+    local punchPower
+    playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$1".digi)
+    enemyHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$2".digi)
+    punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$1".digi)
+
     # Variable to keep track of which turn it is (0 for yours, 1 for opponent)
     turn=0
 
@@ -75,8 +80,8 @@ function fight()
     while [ "$enemyHealth" -gt "0"  ]
     do
         tput clear
-        echo "Starting fight! (type 'help' if you are stuck)"
         echo "$1 ($playerHealth) vs $2 ($enemyHealth)"
+        echo "Fight! (type 'help' if you are stuck)"
         echo "------------------------------------------------------------------"
 
         # Determine who's turn it is
@@ -96,24 +101,37 @@ function fight()
                     case "$command" in
                         "help")
                             echo "------------------------------------------------------------------"
-                            echo "Here is a list of available commands (they are case sensitive):"
+                            echo "Here is a list of available commands:"
                             echo "ls - list available moves"
-                            echo "cd - change digitron, do 'cd ..' to list all digitrons"
+                            #echo "cd - change digitron, do 'cd ..' to list all digitrons"
                             echo "cat [digitron] - get the information of a provided digitron"
+                            echo "continue - do nothing, end turn"
                             echo "./[move] - perform a move, ex. './Punch'"
                             echo "------------------------------------------------------------------"
                             ;;
-                        ls)
-                            echo "Available moves are: $(gawk 'NR!=1{print $1}' ./.digitrons/"$1".digi)"
+                        # List each move available to the player
+                        "ls")
+                            echo "Available moves are: $(gawk 'NR!=1{printf "%s ", $1}' ./.digitrons/"$1".digi)"
                             ;;
-                        cat)
-                        cat ./.digitrons/"$1".digi
-                        break
-                        ;;
+                        # Cat command - to get info about a digitron
+                        "cat $1")
+                            cat ./.digitrons/"$1".digi
+                            ;;
+                        "cat $2")
+                            cat ./.digitrons/"$2".digi
+                            ;;
+                        "continue")
+                            echo "You do nothing for the turn"
+                            break
+                            ;;
+                        # Punch move
                         "./Punch"|"./punch")
-                            echo ""
-                            enemyHealth="$((enemyHealth-punchPower))" #lower enemy health by attack amt
-                            echo "$2's health is now: $enemyHealth"
+                            echo "$1 swings his arm and launches a right hook right at his opponent!"
+
+                            #lower enemy health by attack amount
+                            enemyHealth="$((enemyHealth-punchPower))"; sleep 1
+                            echo "$2's health is now: $enemyHealth"; sleep 1
+
                             break
                             ;;
                             #"Other commands TODO")
@@ -124,19 +142,33 @@ function fight()
                 turn=1
         else 
             # The opponent's turn
-            move=$(( 2 + $RANDOM % 3 )) #random from 2-4 lets give each digi 3 attacks to choose from
-            echo "$move" #debugging purposes needs to be deleted once final ---_!!!
+            # Random from 2-4 lets give each digi 3 attacks to choose from
+            move=$(( 2 + RANDOM % 3 ))
+            
+            # Useful move variables
             moveUsed=$(gawk 'NR=='$move'{print $1}' ./.digitrons/"$2".digi)
             movePower=$(gawk 'NR=='$move'{print int($2)}' ./.digitrons/"$2".digi)
-            echo "Opponent does something, this something is: $moveUsed"
-            echo "Opponent has knocked $movePower points of health"
+
+            # Displaying move
+            echo -n "Opponent uses..."; sleep 1
+            echo " $moveUsed!"; sleep 1
+            echo "Opponent has knocked $movePower points of health"; sleep 1
+            
+            # Changing player's health
             playerHealth="$((playerHealth-movePower))"
-            echo "$1's health is now: $playerHealth"
+            echo "$1's health is now: $playerHealth"; sleep 1
+
+            # Ending turn
             turn=0
         fi
 
-        echo "Turn ending, switching to other player"; read -srn 1
+        # If enemy is still not dead
+        if [ "$enemyHealth" -gt "0"  ]
+            then echo "Turn ending, switching to other player"; read -srn 1
+        fi
     done
+
+    # Win condition
     echo "Congrats, you've won"
     echo "------------------------------------------------------------------"
 }
@@ -231,9 +263,11 @@ elif [ $x -eq 3 ]
         echo -e "\nYou change into some going-out clothes and brush your teeth. 'Bye Mom!', you say as you walk out of the door."; read -srn 1
 fi
 
+# Meeting the goofy kid
 echo "As you make your way to your grandfather's house, you see a kid with some big goofy goggles."; read -srn 1
 echo -e "'Hey, wanna f-f-fight?', he questions.\n"; read -srn 1
 
+# Reply to goofy kid
 selectOption "Get lost, kid" "What do you mean, fight?" "I don't have a digitron yet..."
 x=$?
 
@@ -246,90 +280,113 @@ do
 done
 
 if [ $x -eq 1 ]
-    then echo "'Whatever... rude', he says."
+    then echo "'W..wha...whatever... rude', he says."
 elif [ $x -eq 3 ]
     then
         echo -e "\n'Well shoot, you coulda just said so. Here, have my starter one.'"; read -srn 1
         echo "From his backpack, he takes out a small, glowing ball."; read -srn 1
         echo "'Here, this is Pip. You can have him. Now let's PLAY!'"; read -srn 1
         addDigitron "Pip    100    Water" "Punch    10" "Kick    15"
-        addDigitron "GoofyGlasses'sDigi    20    Fire" "Punch    5" "Kick   10" "Fireth     15"
-        fight "Pip" "GoofyGlasses'sDigi"
+        addDigitron "Goofy    20    Fire" "Punch    5" "Kick   10" "Fireth     15"
+        fight "Pip" "Goofy"
+        echo "'Well, I don't know how, but you beat me...'"; read -srn 1
 fi
 
-read -srn 1
+# Kid runs away whether player says get lost or we beat him
+echo -e "\nKid with big goofy goggles runs away crying."; read -srn 1
+echo "Hmm... Seems like in his despair, the kid has dropped something."; read -srn 1
 
-echo "Well, I don't know how, but you beat me kid-"; read -srn 1
-echo "Kid with big goofy goggles runs away crying, he must be a sore loser"; read -srn 1
-sleep 1
-echo "Hmm... Seems like in his despair, the kid has dropped something"
-sleep 1
-cat ./.asciiArt/digitronBall
-sleep 1
+# Loading digitron ball art
+cat ./.asciiArt/digitronBall; read -srn 1
+
+# Getting/inspecting/kicking digitron ball
 echo -e "\nDo you ..."
-selectOption "Grab his digitron" "Leave it for someone else" "Kick it away"
+selectOption "Grab his digitron" "Take a closer look" "Kick it away"
 x=$?
+
+# Inspecting ball (does not continue story)
+while [ $x -eq 2 ]
+do
+    echo -e "\nIt looks like it hasn't been named yet."
+    selectOption "Grab his digitron" "Take a closer look" "Kick it away"
+    x=$?
+done
+
+# Getting a custom digitron
 if [ $x -eq 1 ]
     then 
         echo -e "Now you have his Digitron! This might come in handy later"
         echo -n "What would you like to name your new digitron? > "
         read -r digiName
         addDigitron "$digiName    20    Fire" "Punch    5"
-elif [ $x -eq 2 ]
-    then
-        echo "Alright, let's keep going!"
+# Fighting a very difficult boss
 elif [ $x -eq 3 ]
     then
-        echo "This has caused the digitron to break lose!"
-        sleep 1
-        fight "Pip" "GoofyGlasses'sDigi"
+        echo "This has caused the digitron to break lose!"; read -srn 1
+        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75"
+        fight "Pip" "Unknown"
 fi
 
-echo "Alright, lets keep going to gramps"; read -srn 1
-echo "As you make your way to gramps, you see a shortcut"; read -srn 1
-echo "you take it and all of the sudden a digitron jumps out at you (...this seems to happen often)"; read -srn 1
-sleep 1
+# Finding a wild digitron
+echo "'Alright, lets keep going to gramps.'"; read -srn 1
+echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
+echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
 addDigitron "BasicEnemyStrong    40    Water" "Punch    20" "Kick    20" "Waterth    30"
 fight "Pip" "BasicEnemyStrong"
 
-echo -e "\nCool, you beat them, now, do you... "
+# When the enemy gets beaten
+echo -e "\nWhew, that was close. What should you do with the defeated digitron?"
 selectOption "Grab digitron" "Let it be free" "Pet it"
 x=$?
+
+# Petting the digi
+while [ $x -eq 3 ]
+do
+    echo -e "\nThey liked it; in return, they pee on your shoe ... womp womp"
+    selectOption "Grab digitron" "Let it be free" "Pet it"
+    x=$?
+done
+
+# Adding the wild digi
 if [ $x -eq 1 ]
     then 
         echo -e "Now you have a new Digitron! This might come in handy later"
         echo -n "What would you like to name your new digitron? > "
         read -r digiName
         addDigitron "$digiName    40    Fire" "Punch    10"
+# Leaving the wild digi
 elif [ $x -eq 2 ]
     then
-        echo "Alright, let's keep going!"
-elif [ $x -eq 3 ]
-    then
-        echo "They liked it, in return they pee on your shoe ... womp womp"
-        sleep 1
+        echo "'I'm sure someone will find good use in this one, but not me.'"
 fi
 
-echo "Alright, you finally make it to your grandpa's and ... "; read -srn 1
-echo "You forgot his newspaper"; read -srn 1
-echo "Do you ..."
-sleep 1
-selectOption "Go back and grab it (Might be beneficial)" "Make up a lie" "Just tell the truth"
+# Getting to grandpa's
+echo "Alright, you finally make it to your grandpa's and... "; read -srn 1
+echo "You forgot his newspaper."; read -srn 1
+echo "Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?"; read -srn 1
+
+# Responding to a newspaperless grandpa
+selectOption "'Sorry pops... I'll go back and grab it.'" "Make up a lie" "Just tell the truth"
 x=$?
+
+# Go back and get it
 if [ $x -eq 1 ]
     then 
         echo -e "You go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"
         fight "Pip" "Basic Enemy"
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
+# Lie
 elif [ $x -eq 2 ]
     then
         echo "Alright, let's keep going!"
+# Tell the truth
 elif [ $x -eq 3 ]
     then
         echo "They liked it, in return they pee on your shoe ... womp womp"
         sleep 1
 fi
+
 #TODO
 #to continue, go back to gramps if gotten paper then gramps says ddint have to but thanks then talks about linux from his old computer????
 #if didnt get paper then he says dont worry about it go to the tournament, I used to be the very best (quirky funny reference)
