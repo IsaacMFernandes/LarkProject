@@ -146,8 +146,7 @@ function fight()
                             fi
                             ;;
                             #"Other commands TODO")
-                        *)
-                        echo "Unknown command. Type 'help' if you are stuck)"
+                        *) echo "Unknown command. Type 'help' if you are stuck)"
                             ;;
                     esac
                 done
