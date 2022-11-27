@@ -65,6 +65,25 @@ function addDigitron()
 # param 2 - name of enemy digitron
 function fight()
 {
+    # Choose starting digitron
+    digisOwned=$(gawk 'NR!=1' ./player.dat | wc -l)
+    if [ "$digisOwned" -gt 1 ]
+        then
+            echo -en "\nWhich digitron would you like to start with?\n(Type 'ls' to see your available digitrons) > "
+            read -r playerDigi
+            while [ "$(cat ./player.dat | grep -c "$playerDigi")" -eq 0 ]
+            do
+                if [ "$playerDigi" = "ls" ]
+                    then
+                        gawk 'NR!=1{print $1}' ./player.dat
+                fi
+                echo -n "Enter digitron you would like to start with > "
+                read -r playerDigi
+            done
+    else
+        playerDigi="$1"
+    fi
+
     # Variables store health of each player
     # My editor was yelling at me to separate the declaration and assignment
     local playerHealth
@@ -73,7 +92,7 @@ function fight()
     levelHealthAdjustment=$((level*15))
 
     # Adjusting player health by their level - starting at 0, going up by 15
-    playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$1".digi)
+    playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$playerDigi".digi)
     playerHealth=$((playerHealth+levelHealthAdjustment))
     enemyHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$2".digi)
 
@@ -85,7 +104,7 @@ function fight()
     do
         tput clear
         echo "$name - level $level"
-        echo "$1 ($playerHealth) vs $2 ($enemyHealth)"
+        echo "$playerDigi ($playerHealth) vs $2 ($enemyHealth)"
         echo "Fight! (type 'help' if you are stuck)"
         echo "------------------------------------------------------------------"
 
@@ -123,11 +142,11 @@ function fight()
                             ;;
                         # List each move available to the player
                         "ls")
-                            echo "Available moves are: $(gawk 'NR!=1{printf "%s ", $1}' ./.digitrons/"$1".digi)"
+                            echo "Available moves are: $(gawk 'NR!=1{printf "%s ", $1}' ./.digitrons/"$playerDigi".digi)"
                             ;;
                         # Cat command - to get info about a digitron
-                        "cat $1")
-                            cat ./.digitrons/"$1".digi
+                        "cat $playerDigi")
+                            cat ./.digitrons/"$playerDigi".digi
                             ;;
                         "cat $2")
                             cat ./.digitrons/"$2".digi
@@ -138,10 +157,10 @@ function fight()
                             ;;
                         # Punch move
                         "./Punch"|"./punch")
-                            punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$1".digi)
+                            punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$playerDigi".digi)
                             punchPower=$((punchPower+levelAdjustment))
 
-                            echo "$1 launches a right hook dealing $punchPower damage!"
+                            echo "$playerDigi launches a right hook dealing $punchPower damage!"
 
                             #lower enemy health by attack amount
                             enemyHealth="$((enemyHealth-punchPower))"; sleep 1
@@ -151,10 +170,10 @@ function fight()
                             ;;
                         # Kick move
                         "./Kick"|"./kick")
-                            kickPower=$(gawk 'NR==3{print int($2)}' ./.digitrons/"$1".digi)
+                            kickPower=$(gawk 'NR==3{print int($2)}' ./.digitrons/"$playerDigi".digi)
                             kickPower=$((kickPower+levelAdjustment))
 
-                            echo "$1 deals a massive kick to $2's midsection, dealing $kickPower damage!"
+                            echo "$playerDigi deals a massive kick to $2's midsection, dealing $kickPower damage!"
 
                             #lower enemy health by attack amount
                             enemyHealth="$((enemyHealth-kickPower))"; sleep 1
@@ -204,7 +223,7 @@ function fight()
                             fi
                             ;;
                             #"Other commands TODO")
-                        "DebugPunch")
+                        "DebugPunch"|"dp")
                             enemyHealth="$((enemyHealth-1000000))"
                             break
                             ;;
@@ -229,7 +248,7 @@ function fight()
             
             # Changing player's health
             playerHealth="$((playerHealth-movePower))"
-            echo "$1's health is now: $playerHealth"; sleep 1
+            echo "$playerDigi's health is now: $playerHealth"; sleep 1
 
             # Ending turn
             turn=0
@@ -408,6 +427,7 @@ if [ $x -eq 1 ]
         echo -n "What would you like to name your new digitron? > "
         read -r digiName
         addDigitron "$digiName    20    Fire" "Punch    5"
+        echo "$digiName" >> ./player.dat
 # Fighting a very difficult boss
 elif [ $x -eq 3 ]
     then
@@ -421,7 +441,7 @@ echo -e "\n'Alright, lets keep going to gramps.'"; read -srn 1
 echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
 echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
 addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Waterth    30"
-fight "Pip" "BasicEnemyStrong"
+fight "Pip" "Croncher"
 
 # When the enemy gets beaten
 echo -e "\nWhew, that was close. What should you do with the defeated digitron?"
@@ -441,6 +461,7 @@ if [ $x -eq 1 ]
     then 
         echo -e "You've added Croncher!"
         addDigitron "Croncher    40    Water" "Punch    10"
+        echo "Croncher" >> ./player.dat
 # Leaving the wild digi
 elif [ $x -eq 2 ]
     then
@@ -459,8 +480,8 @@ hasNewspaper=0
 # Go back and get it
 if [ $x -eq 1 ]
     then 
-        echo -e "You go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
-        echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"
+        echo -e "\nYou go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
+        echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"; read -srn 1
         addDigitron "BasicEnemyStrong    40    Water" "Punch    25" "Kick    25" "Waterth    35"
         fight "Pip" "BasicEnemyStrong"
         hasNewspaper=1
