@@ -311,6 +311,7 @@ done
 if [ $x -eq 2 ]
     then
         sleep 1
+        echo "It's all a dream..."
         dead
 elif [ $x -eq 3 ]
     then
