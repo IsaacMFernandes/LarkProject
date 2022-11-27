@@ -134,8 +134,20 @@ function fight()
 
                             break
                             ;;
+                        "./Stun"|"./stun")
+                            echo ""
+                            chance=$(( 1 + $RANDOM % 2 )) 
+                            if [ $chance -eq 1 ]
+                                then
+                                    echo "You have stunned $2!"
+                            else   
+                                    echo "Your stun has failed"
+                                    break
+                            fi
+                            ;;
                             #"Other commands TODO")
-                        *) echo "Unknown command. Type 'help' if you are stuck)"
+                        *)
+                        echo "Unknown command. Type 'help' if you are stuck)"
                             ;;
                     esac
                 done
