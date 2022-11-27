@@ -68,10 +68,9 @@ function fight()
     # My editor was yelling at me to separate the declaration and assignment
     local playerHealth
     local enemyHealth
-    local punchPower
     playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$1".digi)
     enemyHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$2".digi)
-    punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$1".digi)
+    
 
     # Variable to keep track of which turn it is (0 for yours, 1 for opponent)
     turn=0
@@ -128,7 +127,21 @@ function fight()
                             ;;
                         # Punch move
                         "./Punch"|"./punch")
+                            punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$1".digi)
+
                             echo "$1 swings his arm and launches a right hook right at his opponent!"
+
+                            #lower enemy health by attack amount
+                            enemyHealth="$((enemyHealth-punchPower))"; sleep 1
+                            echo "$2's health is now: $enemyHealth"; sleep 1
+
+                            break
+                            ;;
+                        # Punch move
+                        "./Kick"|"./kick")
+                            punchPower=$(gawk 'NR==3{print int($2)}' ./.digitrons/"$1".digi)
+
+                            echo "$1 !"
 
                             #lower enemy health by attack amount
                             enemyHealth="$((enemyHealth-punchPower))"; sleep 1
@@ -377,10 +390,10 @@ fi
 # Getting to grandpa's
 echo "Alright, you finally make it to your grandpa's and... "; read -srn 1
 echo "You forgot his newspaper."; read -srn 1
-echo "Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?"; read -srn 1
+echo "'Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?'"; read -srn 1
 
 # Responding to a newspaperless grandpa
-selectOption "'Sorry pops... I'll go back and grab it.'" "Make up a lie" "Just tell the truth"
+selectOption "Go back and get it" "Make up a lie" "Just tell the truth"
 x=$?
 
 # Go back and get it
@@ -388,7 +401,8 @@ if [ $x -eq 1 ]
     then 
         echo -e "You go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"
-        fight "Pip" "Basic Enemy"
+        addDigitron "BasicEnemyStrong    40    Water" "Punch    20" "Kick    20" "Waterth    30"
+        fight "Pip" "BasicEnemyStrong"
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
 elif [ $x -eq 2 ]
