@@ -89,11 +89,13 @@ function fight()
             then 
                 while true
                 do
-                    if [ "$playerHealth" -le 0 ] #cheks if you're not ded yet
+                    # Check if you're not dead yet
+                    if [ "$playerHealth" -le 0 ]
                         then
                             echo "$2 has defeated you :("; read -srn 1
                             dead
-                    fi    
+                    fi
+
                     echo -n "Your turn: "
                     read -r command
 
@@ -134,9 +136,10 @@ function fight()
 
                             break
                             ;;
+                        # Stun move
                         "./Stun"|"./stun")
                             echo ""
-                            chance=$(( 1 + RANDOM % 2 )) 
+                            chance=$(( 1 + RANDOM % 2 ))
                             if [ $chance -eq 1 ]
                                 then
                                     echo "You have stunned $2!"
@@ -173,8 +176,8 @@ function fight()
             turn=0
         fi
 
-        # If enemy is still not dead
-        if [ "$enemyHealth" -gt "0"  ]
+        # If neither digitron are dead
+        if [ "$enemyHealth" -gt "0" ] && [ "$playerHealth" -gt "0" ]
             then echo "Turn ending, switching to other player"; read -srn 1
         fi
     done
@@ -339,7 +342,7 @@ elif [ $x -eq 3 ]
 fi
 
 # Finding a wild digitron
-echo "'Alright, lets keep going to gramps.'"; read -srn 1
+echo -e "\n'Alright, lets keep going to gramps.'"; read -srn 1
 echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
 echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
 addDigitron "BasicEnemyStrong    40    Water" "Punch    20" "Kick    20" "Waterth    30"
