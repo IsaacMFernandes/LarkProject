@@ -373,7 +373,7 @@ if [ $x -eq 1 ]
 elif [ $x -eq 3 ]
     then
         echo "This has caused the digitron to break lose!"; read -srn 1
-        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75"
+        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75" "Nuclear explosion    150"
         fight "Pip" "Unknown"
 fi
 
