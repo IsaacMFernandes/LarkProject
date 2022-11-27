@@ -181,6 +181,15 @@ function fight()
 
                             break
                             ;;
+                        # Heal move
+                        "./Heal"|"./heal")
+                            healPower=$(gawk '/Heal/{print int($2)}' ./.digitrons/"$1".digi)
+                            healPower=$((healPower+levelAdjustment))
+                            playerHealth="$((playerHealth+healPower))"
+                            echo "You have healed $healPower points"
+
+                            break
+                            ;;
                         # Stun move
                         "./Stun"|"./stun")
                             echo ""
@@ -190,6 +199,26 @@ function fight()
                                     echo "You have stunned $2!"
                             else   
                                     echo "Your stun has failed"
+                                    break
+                            fi
+                            ;;
+                            "./Charged"|"./charged")
+                            echo ""
+                            chance2=$(( 1 + RANDOM % 2 ))
+                            if [ $chance2 -eq 1 ]
+                                then
+                                    chargedPower=$(gawk '/Charged/{print int($2)}' ./.digitrons/"$1".digi)
+                                    chargedPower=$((chargedPower+levelAdjustment))
+
+                                    echo "$1 charges at $2, causing $chargedPower damage!"
+
+                                    #lower enemy health by attack amount
+                                    enemyHealth="$((enemyHealth-chargedPower))"; sleep 1
+                                    echo "$2's health is now: $enemyHealth"; sleep 1
+
+                            break
+                            else   
+                                    echo "Your Charged Attack has failed"
                                     break
                             fi
                             ;;
@@ -488,14 +517,16 @@ x=$?
 #TODO moves
 if [ $x -eq 1 ]
     then 
-        TODO #learn Heal
+        echo "Heal    20" >> ./.digitrons/Pip.digi
+        echo "~~~ You have unlocked a new move: Heal ~~~"; read -srn 1
 elif [ $x -eq 2 ]
     then
-        TODO #Learn Stun
+        echo "Stun    20" >> ./.digitrons/Pip.digi
+        echo "~~~ You have unlocked a new move: Stun ~~~"; read -srn 1
 elif [ $x -eq 3 ]
     then
-        TODO
-        #Learn Charged attack
+        echo "Charged   40" >> ./.digitrons/Pip.digi
+        echo "~~~ You have unlocked a new move: Charged Attack ~~~"; read -srn 1
 fi
 
 echo "'Alright boy, let's try your new move'"; read -srn 1
