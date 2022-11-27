@@ -434,7 +434,7 @@ if [ $x -eq 1 ]
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"
         addDigitron "BasicEnemyStrong    40    Water" "Punch    25" "Kick    25" "Waterth    35"
         fight "Pip" "BasicEnemyStrong"
-        hasNewspaper = 1
+        hasNewspaper=1
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
 elif [ $x -eq 2 ]
