@@ -333,7 +333,6 @@ elif [ $x -eq 3 ]
         echo "Pip" >> ./player.dat
         addDigitron "Goofy    20    Fire" "Punch    5" "Kick   10" "Fireth     15"
         fight "Pip" "Goofy"
-        
 fi
 
 # Unlocking a new move
@@ -380,7 +379,7 @@ fi
 echo -e "\n'Alright, lets keep going to gramps.'"; read -srn 1
 echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
 echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
-addDigitron "BasicEnemyStrong    40    Water" "Punch    20" "Kick    20" "Waterth    30"
+addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Waterth    30"
 fight "Pip" "BasicEnemyStrong"
 
 # When the enemy gets beaten
@@ -399,10 +398,8 @@ done
 # Adding the wild digi
 if [ $x -eq 1 ]
     then 
-        echo -e "Now you have a new Digitron! This might come in handy later"
-        echo -n "What would you like to name your new digitron? > "
-        read -r digiName
-        addDigitron "$digiName    40    Fire" "Punch    10"
+        echo -e "You've added Croncher!"
+        addDigitron "Croncher    40    Water" "Punch    10"
 # Leaving the wild digi
 elif [ $x -eq 2 ]
     then
