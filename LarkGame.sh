@@ -136,7 +136,7 @@ function fight()
                             ;;
                         "./Stun"|"./stun")
                             echo ""
-                            chance=$(( 1 + $RANDOM % 2 )) 
+                            chance=$(( 1 + RANDOM % 2 )) 
                             if [ $chance -eq 1 ]
                                 then
                                     echo "You have stunned $2!"
