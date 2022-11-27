@@ -3,9 +3,9 @@
 A pokemon-esq bash game designed to teach linux/unix commands.
 
 
-Begin by running Start.sh
+Begin by running LarkGame.sh
 
-You can simply type `./Start.sh`
+You can simply type `./LarkGame.sh`
 
 .
 

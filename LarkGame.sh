@@ -2,6 +2,7 @@
 
 # Any global variables defined/modified here
 PS3="> "
+fightWithGramps=0
 
 # Functions used in the program
 # Function called when the user exits the program unexpectedly
@@ -97,6 +98,11 @@ function fight()
                     if [ "$playerHealth" -le 0 ]
                         then
                             echo "$2 has defeated you :("; read -srn 1
+                            if [ $fightWithGramps -eq 1 ]
+                                then
+                                    fightWithGramps=0
+                                    return
+                            fi
                             dead
                     fi
 
@@ -169,6 +175,10 @@ function fight()
                             fi
                             ;;
                             #"Other commands TODO")
+                        "DebugPunch")
+                            enemyHealth="$((enemyHealth-1000000))"
+                            break
+                        ;;
                         *) echo "Unknown command. Type 'help' if you are stuck)"
                             ;;
                     esac
@@ -218,6 +228,7 @@ function levelUp()
 # Function when the player dies
 function dead()
 {
+
     tput clear
     echo "A bright, glowing white aura surrounds you; memories flash before your eyes like a flip book."
     echo "'Is this it... am I dying?', you ponder."; read -srn 1
@@ -300,6 +311,7 @@ done
 if [ $x -eq 2 ]
     then
         sleep 1
+        echo "It's all a dream..."
         dead
 elif [ $x -eq 3 ]
     then
@@ -414,7 +426,7 @@ echo -e "\n'Golly dangit, boy. Where is my newspaper? Well? What do you have to 
 # Responding to a newspaperless grandpa
 selectOption "Go back and get it" "Make up a lie" "Just tell the truth"
 x=$?
-
+hasNewspaper=0
 # Go back and get it
 if [ $x -eq 1 ]
     then 
@@ -422,20 +434,65 @@ if [ $x -eq 1 ]
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"
         addDigitron "BasicEnemyStrong    40    Water" "Punch    25" "Kick    25" "Waterth    35"
         fight "Pip" "BasicEnemyStrong"
+        hasNewspaper = 1
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
 elif [ $x -eq 2 ]
     then
-        echo "Alright, let's keep going!"
+        echo "Sorry grandpa! A digitron ate it"; read -srn 1
 # Tell the truth
 elif [ $x -eq 3 ]
     then
-        echo "They liked it, in return they pee on your shoe ... womp womp"
+        echo "I forgot, sorry! The digitron tournament has taken over my head"; read -srn 1
         sleep 1
 fi
 
-#TODO
-#to continue, go back to gramps if gotten paper then gramps says ddint have to but thanks then talks about linux from his old computer????
-#if didnt get paper then he says dont worry about it go to the tournament, I used to be the very best (quirky funny reference)
-#gives you a choice of three random digis?
-#also need to figure out a count like after x amnt of fights then digi evolves or whatever? --Secondary, not priority or maybe? idk
+if [ $hasNewspaper -eq 1 ]
+    then
+        echo "You make finally arrive to your grandpa's (again) and hand him his newspaper"; read -srn 1
+        echo "'What's got you looking so worried boy?'"; read -srn 1
+        echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
+        echo "Oh, I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
+        echo "Which move would you like to learn?"; read -srn 1
+        selectOption "Heal" "Stun" "Charged attack"
+        x=$?
+        #TODO moves
+        if [ $x -eq 1 ]
+            then 
+                TODO #learn Heal
+        elif [ $x -eq 2 ]
+            then
+                TODO #Learn Stun
+        elif [ $x -eq 3 ]
+            then
+                TODO
+                #Learn Charged attack
+        fi
+elif [ $hasNewspaper -eq 0 ]
+    then    
+        echo "'Oh.. That's alright boy whats got you so worked up?'"; read -srn 1
+        echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
+        echo "Oh, I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
+        echo "Which move would you like to learn?"; read -srn 1
+        selectOption "Heal" "Stun" "Charged attack"
+        x=$?
+        #TODO moves
+        if [ $x -eq 1 ]
+            then 
+                TODO #learn Heal
+        elif [ $x -eq 2 ]
+            then
+                TODO #Learn Stun
+        elif [ $x -eq 3 ]
+            then
+                TODO
+                #Learn Charged attack
+        fi
+fi
+
+echo "'Alright boy, let's try your new move'"; read -srn 1
+fightWithGramps=1
+addDigitron "Grandpa'sLegendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
+fight "Pip" "Grandpa'sLegendary"
+echo "Lol to do"
+    
