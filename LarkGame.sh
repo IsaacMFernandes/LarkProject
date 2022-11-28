@@ -285,17 +285,19 @@ echo -e "'Hey, wanna f-f-fight?', he questions.\n"; read -srn 1
 selectOption "Get lost, kid" "What do you mean, fight?" "I don't have a digitron yet..."
 x=$?
 
-# Option 2 gives exposition, but option 1 or 3 progress the story 
-while [ $x -eq 2 ]
+# I made it impossible to not get Pip, as it didn't make sense later on in the story
+while [ $x -eq 1 ] || [ $x -eq 2 ]
 do
-    echo -e "\n'Um... what were you born yesterday? I mean we summon our digitrons and FIGHT!', he says."
+    if [ $x -eq 1 ]
+        then echo -e "\n'Ah-ah-ahhh, not so fast. You won't get away that easily!', he goofs."
+    elif [ $x -eq 2 ]
+        then echo -e "\n'Um... what were you born yesterday? I mean we summon our digitrons and FIGHT!', he says."
+    fi
     selectOption "Get lost, kid" "What do you mean, fight?" "I don't have a digitron yet..."
     x=$?
 done
 
-if [ $x -eq 1 ]
-    then echo "'W..wha...whatever... rude', he says."
-elif [ $x -eq 3 ]
+if [ $x -eq 3 ]
     then
         echo -e "\n'Well shoot, you coulda just said so. Here, have my starter one.'"; read -srn 1
         echo "From his backpack, he takes out a small, glowing ball."; read -srn 1
@@ -329,7 +331,7 @@ done
 # Getting a custom digitron
 if [ $x -eq 1 ]
     then 
-        echo -e "Now you have his Digitron! This might come in handy later"
+        echo -e "\nNow you have his Digitron! This might come in handy later"
         echo -n "What would you like to name your new digitron? > "
         read -r digiName
         addDigitron "$digiName    20    Fire" "Punch    5"
@@ -337,7 +339,7 @@ if [ $x -eq 1 ]
 elif [ $x -eq 3 ]
     then
         echo "This has caused the digitron to break lose!"; read -srn 1
-        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75"
+        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75" "Hadouken    100"
         fight "Pip" "Unknown"
 fi
 
