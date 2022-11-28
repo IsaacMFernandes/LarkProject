@@ -71,7 +71,7 @@ function fight()
         then
             echo -en "\nWhich digitron would you like to start with?\n(Type 'ls' to see your available digitrons) > "
             read -r playerDigi
-            while [ "$(cat ./player.dat | grep -c "$playerDigi")" -eq 0 ]
+            while [ "$(grep -c "$playerDigi" < ./player.dat)" -eq 0 ]
             do
                 if [ "$playerDigi" = "ls" ]
                     then
@@ -134,7 +134,9 @@ function fight()
                             echo "------------------------------------------------------------------"
                             echo "Here is a list of available commands:"
                             echo "ls - list available moves"
-                            #echo "cd - change digitron, do 'cd ..' to list all digitrons"
+                            if [ "$digisOwned" -gt 1 ]
+                                then echo "cd - change digitron"
+                            fi
                             echo "cat [digitron] - get the information of a provided digitron"
                             echo "continue - do nothing, end turn"
                             echo "./[move] - perform a move, ex. './Punch'"
@@ -162,8 +164,10 @@ function fight()
 
                             echo "$playerDigi launches a right hook dealing $punchPower damage!"
 
-                            #lower enemy health by attack amount
-                            enemyHealth="$((enemyHealth-punchPower))"; sleep 1
+                            #lower enemy health by attack amount and edit the .digi file
+                            newHealth="$((enemyHealth-punchPower))"
+                            sed -i "1 s/$enemyHealth/$newHealth/" ./.digitrons/"$2".digi
+                            enemyHealth=$newHealth; sleep 1
                             echo "$2's health is now: $enemyHealth"; sleep 1
 
                             break
@@ -176,16 +180,20 @@ function fight()
                             echo "$playerDigi deals a massive kick to $2's midsection, dealing $kickPower damage!"
 
                             #lower enemy health by attack amount
-                            enemyHealth="$((enemyHealth-kickPower))"; sleep 1
+                            newHealth="$((enemyHealth-kickPower))"
+                            sed -i "1 s/$enemyHealth/$newHealth/" ./.digitrons/"$2".digi
+                            enemyHealth=$newHealth; sleep 1
                             echo "$2's health is now: $enemyHealth"; sleep 1
 
                             break
                             ;;
                         # Heal move
                         "./Heal"|"./heal")
-                            healPower=$(gawk '/Heal/{print int($2)}' ./.digitrons/"$1".digi)
+                            healPower=$(gawk '/Heal/{print int($2)}' ./.digitrons/"$playerDigi".digi)
                             healPower=$((healPower+levelAdjustment))
-                            playerHealth="$((playerHealth+healPower))"
+                            newHealth="$((playerHealth+healPower))"
+                            sed -i "1 s/$playerHealth/$newHealth/" ./.digitrons/"$playerDigi".digi
+                            playerHealth=$newHealth
                             echo "You have healed $healPower points"
 
                             break
@@ -202,18 +210,20 @@ function fight()
                                     break
                             fi
                             ;;
-                            "./Charged"|"./charged")
+                        "./Charged"|"./charged")
                             echo ""
                             chance2=$(( 1 + RANDOM % 2 ))
                             if [ $chance2 -eq 1 ]
                                 then
-                                    chargedPower=$(gawk '/Charged/{print int($2)}' ./.digitrons/"$1".digi)
+                                    chargedPower=$(gawk '/Charged/{print int($2)}' ./.digitrons/"$playerDigi".digi)
                                     chargedPower=$((chargedPower+levelAdjustment))
 
                                     echo "$1 charges at $2, causing $chargedPower damage!"
 
                                     #lower enemy health by attack amount
-                                    enemyHealth="$((enemyHealth-chargedPower))"; sleep 1
+                                    newHealth="$((enemyHealth-chargedPower))"
+                                    sed -i "1 s/$enemyHealth/$newHealth/" ./.digitrons/"$2".digi
+                                    enemyHealth=$newHealth; sleep 1
                                     echo "$2's health is now: $enemyHealth"; sleep 1
 
                             break
@@ -225,6 +235,37 @@ function fight()
                             #"Other commands TODO")
                         "DebugPunch"|"dp")
                             enemyHealth="$((enemyHealth-1000000))"
+                            break
+                            ;;
+                        # Change digitron option
+                        "cd")
+                            # Making sure the player doesn't try to cd 
+                            if [ ! "$digisOwned" -gt 1 ]
+                                then echo "You can't do that yet!"
+                                    break
+                            fi
+
+                            # Printing options
+                            gawk 'NR!=1{print $1}' ./player.dat
+
+                            # Asking player
+                            echo -n "Which would you like to switch to? > "
+                            read -r changeDigi
+
+                            # Checking input
+                            while [ "$(grep -c "$changeDigi" < ./player.dat)" -eq 0 ]
+                            do
+                                echo -n "Digitron not found. Try again > "
+                                read -r changeDigi
+                            done
+
+                            # Change to that digitron
+                            playerDigi="$changeDigi"
+                            echo "Switching to $playerDigi!"; read -srn 1
+
+                            # Fixing health variables
+                            playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$playerDigi".digi)
+
                             break
                             ;;
                         *) echo "Unknown command. Type 'help' if you are stuck)"
@@ -247,7 +288,9 @@ function fight()
             echo "Opponent has knocked $movePower points of health"; sleep 1
             
             # Changing player's health
-            playerHealth="$((playerHealth-movePower))"
+            newHealth="$((playerHealth-movePower))"
+            sed -i "1 s/$playerHealth/$newHealth/" ./.digitrons/"$playerDigi".digi
+            playerHealth=$newHealth
             echo "$playerDigi's health is now: $playerHealth"; sleep 1
 
             # Ending turn
@@ -432,7 +475,7 @@ if [ $x -eq 1 ]
 elif [ $x -eq 3 ]
     then
         echo "This has caused the digitron to break lose!"; read -srn 1
-        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75" "Nuclear explosion    150"
+        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75" "NuclearExplosion    150"
         fight "Pip" "Unknown"
 fi
 
