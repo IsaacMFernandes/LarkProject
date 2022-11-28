@@ -631,8 +631,13 @@ echo "Good job $name, now you are ready to go to the tournament"; read -srn 1
 echo "Now, with new a new move and treat your grand-pa-pa gave you, you head over to the digi stadium"; read -srn 1
 echo "'Oh, and don't worry about your digitron. I've healed him 100 health.'"; read -srn 1
 echo "As you approach the stadium, you start hearing chants and you are wowed by it"; read -srn 1
+
 # Loading stadium art
-cat ./.asciiArt/stadium; read -srn 1
+if [ -f ./.asciiArt/stadium ]
+    then cat ./.asciiArt/stadium; read -srn 1
+fi
+
+# TODO
 echo "Tournament to be continued. Thanks for playing!"; read -srn 1
 echo "-Isaac Fernandes and Nelson Suarez"; read -srn 1
 exit
