@@ -89,11 +89,9 @@ function fight()
     local playerHealth
     local enemyHealth
     levelAdjustment=$((level*5))
-    levelHealthAdjustment=$((level*15))
 
     # Adjusting player health by their level - starting at 0, going up by 15
     playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$playerDigi".digi)
-    playerHealth=$((playerHealth+levelHealthAdjustment))
     enemyHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$2".digi)
 
     # Variable to keep track of which turn it is (0 for yours, 1 for opponent)
@@ -119,6 +117,7 @@ function fight()
                             echo "$2 has defeated you :("; read -srn 1
                             if [ $fightWithGramps -eq 1 ]
                                 then
+                                    sed -i "1 s/$playerHealth/100/" ./.digitrons/"$playerDigi".digi
                                     fightWithGramps=0
                                     return
                             fi
@@ -241,8 +240,8 @@ function fight()
                         "cd")
                             # Making sure the player doesn't try to cd 
                             if [ ! "$digisOwned" -gt 1 ]
-                                then echo "You can't do that yet!"
-                                    break
+                                then echo "Unfortunately, you're down to your last digitron!"
+                                    continue
                             fi
 
                             # Printing options
@@ -261,7 +260,7 @@ function fight()
 
                             # Change to that digitron
                             playerDigi="$changeDigi"
-                            echo "Switching to $playerDigi!"; read -srn 1
+                            echo "Switching to $playerDigi!"; sleep 1
 
                             # Fixing health variables
                             playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$playerDigi".digi)
@@ -297,6 +296,21 @@ function fight()
             turn=0
         fi
 
+        # When one digi dies, and you have others, switch to another, unless you're fighting grandpa
+        if [ "$playerHealth" -le "0" ] && [ "$digisOwned" -gt "1" ] && [ $fightWithGramps -eq 0 ]
+            then
+                echo -e "\n$playerDigi has fainted..."
+
+                # Remove it from player.dat
+                sed -i "/$playerDigi/d" ./player.dat
+
+                # Switch to the first digitron
+                echo "Switching to another digitron"
+                playerDigi=$(gawk 'NR==2{print $1}' ./player.dat)
+                playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$playerDigi".digi)
+                digisOwned="$((digisOwned-1))"
+        fi
+
         # If neither digitron are dead
         if [ "$enemyHealth" -gt "0" ] && [ "$playerHealth" -gt "0" ]
             then echo "Turn ending, switching to other player"; read -srn 1
@@ -313,13 +327,21 @@ function fight()
 function levelUp()
 {
     level=$((level+1))
-    echo "~~~ You have leveled up! You are now level $level ~~~"
+    for (( i=0; i<digisOwned; i++ ))
+    do
+        d=$(gawk 'NR==((i+2)){print $1}' ./player.dat)
+        oldHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$d".digi)
+        newHealth=$((oldHealth+25))
+        sed -i "1 s/$oldHealth/$newHealth/" ./.digitrons/"$d".digi
+    done
+    echo "~~~~~ You have leveled up! You are now level $level ~~~~~"; read -srn 1
+    echo "~~~~~~~ Your digitrons have all healed by 25! ~~~~~~~"; read -srn 1
+    echo "~~~~~~ and their attacks will do 5 more damage ~~~~~~"; read -srn 1
 }
 
 # Function when the player dies
 function dead()
 {
-
     tput clear
     echo "A bright, glowing white aura surrounds you; memories flash before your eyes like a flip book."
     echo "'Is this it... am I dying?', you ponder."; read -srn 1
@@ -502,7 +524,7 @@ done
 # Adding the wild digi
 if [ $x -eq 1 ]
     then 
-        echo -e "You've added Croncher!"
+        echo -e "You've added Croncher!"; read -srn 1
         addDigitron "Croncher    40    Water" "Punch    10"
         echo "Croncher" >> ./player.dat
 # Leaving the wild digi
@@ -577,11 +599,12 @@ fightWithGramps=1
 addDigitron "Grandpa'sLegendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
 fight "Pip" "Grandpa'sLegendary"
 echo "Good job $name, now you are ready to go to the tournament"; read -srn 1
+
 echo "Now, with new a new move and treat your grand-pa-pa gave you, you head over to the digi stadium"; read -srn 1
+echo "'Oh, and don't worry about your digitron. I've healed him 100 health.'"; read -srn 1
 echo "As you approach the stadium, you start hearing chants and you are wowed by it"; read -srn 1
 # Loading stadium art
 cat ./.asciiArt/stadium; read -srn 1
 echo "Tournament to be continued. Thanks for playing!"; read -srn 1
 echo "-Isaac Fernandes and Nelson Suarez"; read -srn 1
 exit
-    
