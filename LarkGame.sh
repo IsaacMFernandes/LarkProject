@@ -576,5 +576,12 @@ echo "'Alright boy, let's try your new move'"; read -srn 1
 fightWithGramps=1
 addDigitron "Grandpa'sLegendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
 fight "Pip" "Grandpa'sLegendary"
-echo "Lol to do"
+echo "Good job $name, now you are ready to go to the tournament"; read -srn 1
+echo "Now, with new a new move and treat your grand-pa-pa gave you, you head over to the digi stadium"; read -srn 1
+echo "As you approach the stadium, you start hearing chants and you are wowed by it"; read -srn 1
+# Loading stadium art
+cat ./.asciiArt/stadium; read -srn 1
+echo "Tournament to be continued. Thanks for playing!"; read -srn 1
+echo "-Isaac Fernandes and Nelson Suarez"; read -srn 1
+exit
     
