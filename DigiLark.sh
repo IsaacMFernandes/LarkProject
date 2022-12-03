@@ -25,6 +25,21 @@ function punchAnimation()
     tput rmcup
 }
 
+function kickAnimation()
+{
+    tput smcup
+    for frame in .asciiArt/.kick/*
+    do
+        tput clear
+        cat "$frame"
+        #echo "$frame"
+        sleep 0.1
+    done
+    echo "Press any button to continue."
+    read -srn 1
+    tput rmcup
+}
+
 # Functions used in the program
 # Function called when the user exits the program unexpectedly
 function onExit()
@@ -205,6 +220,10 @@ function fight()
                         "./Kick"|"./kick")
                             kickPower=$(gawk 'NR==3{print int($2)}' ./.digitrons/"$playerDigi".digi)
                             kickPower=$((kickPower+levelAdjustment))
+
+                            if [ $animate -eq 1 ]
+                                then kickAnimation
+                            fi
 
                             echo "$playerDigi deals a massive kick to $2's midsection, dealing $kickPower damage!"
 
