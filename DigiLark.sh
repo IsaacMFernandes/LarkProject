@@ -13,16 +13,21 @@ hasNewspaper=0
 
 function punchAnimation()
 {
+    # If the terminal is too small, tell user
     if [ "$(tput lines)" -lt 30 ] || [ "$(tput cols)" -lt 100 ]
         then echo -e "\nCould not load animation. Please increase your terminal size.\n"
         return
+    # If terminal is big enough for the smaller animation, use that instead of the large animation
     elif [ "$(tput lines)" -lt 43 ] || [ "$(tput cols)" -lt 150 ]
         then size="Small"
     else
         size="Large"
     fi
 
+    # Save the screen
     tput smcup
+
+    # Start displaying each ascii text file with 0.1 delay in between
     for frame in .asciiArt/.punch"$size"/*
     do
         tput clear
@@ -30,6 +35,8 @@ function punchAnimation()
         #echo "$frame"
         sleep 0.1
     done
+
+    # Restore screen afterwards
     echo "Press any button to continue."
     read -srn 1
     tput rmcup
@@ -37,6 +44,7 @@ function punchAnimation()
 
 function kickAnimation()
 {
+    # Follows the same logic as 
     if [ "$(tput lines)" -lt 30 ] || [ "$(tput cols)" -lt 100 ]
         then echo -e "\nCould not load animation. Please increase your terminal size.\n"
         return
@@ -158,6 +166,15 @@ function fight()
         echo "$name - level $level"
         echo "$playerDigi ($playerHealth) vs $2 ($enemyHealth)"
         echo "Fight! (type 'help' if you are stuck)"
+
+        # Remind user to increase terminal size
+        if [ $animate -eq 1 ]
+            then
+                if [ "$(tput lines)" -lt 43 ] || [ "$(tput cols)" -lt 150 ]
+                    then echo -e "Reminder: Increase your terminal size for better animations.\nIt is currently $(tput lines)x$(tput cols)"
+                fi
+        fi
+
         echo "------------------------------------------------------------------"
 
         # Determine who's turn it is
@@ -393,7 +410,7 @@ function fight()
     done
 
     tput clear
-    echo -e "~~~ Press any key to continue dialogue ~~~\n"
+    echo -e "~~~ Press any key to continue ~~~\n"
 
     # Win condition
     echo "Congrats, you've won"
@@ -457,13 +474,14 @@ done
 if [ "$response" = "y" ] || [ "$response" = "Y" ] || [ "$response" = "yes" ] || [ "$response" = "Yes" ]
     then animate=0
 else
-    animate=1
+    echo "We recommend increasing your terminal size to 45x150 for the best animations"
+    echo "Your current terminal size is $(tput lines)x$(tput cols)"; read -srn 1
 fi
 
 # Create player data file if it does not exist
 if [ ! -f ./player.dat ]
     then
-        echo "Data file not found, creating now..."
+        echo -e "\nData file not found, creating now..."
         sleep 1
         echo "playerName" > player.dat
         echo "Created data file!"
