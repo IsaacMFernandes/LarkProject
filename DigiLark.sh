@@ -4,11 +4,25 @@
 PS3="> "
 fightWithGramps=0
 
+function punchAnimation()
+{
+    tput smcup
+    for frame in .asciiArt/.punch/*
+    do
+        tput clear
+        cat "$frame"
+        #echo "$frame"
+        sleep 0.1
+    done
+    echo "Press any button to continue."
+    read -srn 1
+    tput rmcup
+}
+
 # Functions used in the program
 # Function called when the user exits the program unexpectedly
 function onExit()
 {
-    tput rmcup
     exit
 }
 
@@ -160,6 +174,7 @@ function fight()
                         "./Punch"|"./punch")
                             punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$playerDigi".digi)
                             punchPower=$((punchPower+levelAdjustment))
+                            punchAnimation
 
                             echo "$playerDigi launches a right hook dealing $punchPower damage!"
 
@@ -355,7 +370,6 @@ function dead()
 }
 
 # Save screen when program is called, go back when program is Ctrl+C'd
-tput smcup
 tput clear
 trap onExit SIGINT SIGTERM
 
