@@ -9,11 +9,21 @@ fi
 PS3="> "
 animate=1
 fightWithGramps=0
+hasNewspaper=0
 
 function punchAnimation()
 {
+    if [ "$(tput lines)" -lt 30 ] || [ "$(tput cols)" -lt 100 ]
+        then echo -e "\nCould not load animation. Please increase your terminal size.\n"
+        return
+    elif [ "$(tput lines)" -lt 43 ] || [ "$(tput cols)" -lt 150 ]
+        then size="Small"
+    else
+        size="Large"
+    fi
+
     tput smcup
-    for frame in .asciiArt/.punch/*
+    for frame in .asciiArt/.punch"$size"/*
     do
         tput clear
         cat "$frame"
@@ -27,8 +37,17 @@ function punchAnimation()
 
 function kickAnimation()
 {
+    if [ "$(tput lines)" -lt 30 ] || [ "$(tput cols)" -lt 100 ]
+        then echo -e "\nCould not load animation. Please increase your terminal size.\n"
+        return
+    elif [ "$(tput lines)" -lt 43 ] || [ "$(tput cols)" -lt 150 ]
+        then size="Small"
+    else
+        size="Large"
+    fi
+
     tput smcup
-    for frame in .asciiArt/.kick/*
+    for frame in .asciiArt/.kick"$size"/*
     do
         tput clear
         cat "$frame"
@@ -552,112 +571,21 @@ echo "'Well, I don't know how, but you beat me...'"; read -srn 1
 echo -e "\nKid with big goofy goggles runs away crying."; read -srn 1
 echo "Hmm... Seems like in his despair, the kid has dropped something."; read -srn 1
 
-# Loading digitron ball art
-cat ./.asciiArt/digitronBall; read -srn 1
-
-# Getting/inspecting/kicking digitron ball
-echo -e "\nDo you ..."
-selectOption "Grab his digitron" "Take a closer look" "Kick it away"
-x=$?
-
-# Inspecting ball (does not continue story)
-while [ $x -eq 2 ]
-do
-    echo -e "\nIt looks like it hasn't been named yet."
-    selectOption "Grab his digitron" "Take a closer look" "Kick it away"
-    x=$?
-done
-
-# Getting a custom digitron
-if [ $x -eq 1 ]
-    then 
-        echo -e "\nNow you have his Digitron! This might come in handy later"
-        echo -n "What would you like to name your new digitron? > "
-        read -r digiName
-        while [ "$digiName" = "" ]
-        do
-            echo -n "Please enter a name: "
-            read -r digiName
-        done
-        addDigitron "$digiName    20    Fire" "Punch    5" "Kick    10"
-        echo "$digiName" >> ./player.dat
-        echo -e "\n~~~ Now that you have more than one digitron, you can use the 'cd' command in a battle! ~~~"; read -srn 1
-# Fighting a very difficult boss
-elif [ $x -eq 3 ]
-    then
-        echo "This has caused the digitron to break lose!"; read -srn 1
-        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75" "NuclearExplosion    150"
-        fight "Pip" "Unknown"
-fi
-
-# Finding a wild digitron
-echo -e "\n'Alright, lets keep going to gramps', you say."; read -srn 1
-echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
-echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
-addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Waterth    30"
-fight "Pip" "Croncher"
-
-# When the enemy gets beaten
-echo -e "\nWhew, that was close. What should you do with the defeated digitron?"
-selectOption "Grab digitron" "Let it be free" "Pet it"
-x=$?
-
-# Petting the digi
-while [ $x -eq 3 ]
-do
-    echo -e "\nThey liked it; in return, they pee on your shoe ... womp womp"
-    selectOption "Grab digitron" "Let it be free" "Pet it"
-    x=$?
-done
-
-# Adding the wild digi
-if [ $x -eq 1 ]
-    then 
-        echo -e "\n~~~ You've added Croncher! ~~~\n"; read -srn 1
-        addDigitron "Croncher    40    Water" "Punch    10"
-        echo "Croncher" >> ./player.dat
-# Leaving the wild digi
-elif [ $x -eq 2 ]
-    then
-        echo "'I'm sure someone will find good use in this one, but not me.'"
-fi
-
-# Getting to grandpa's
-echo "Alright, you finally make it to your grandpa's and... "; read -srn 1
-echo "You forgot his newspaper."; read -srn 1
-echo -e "\n'Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?'"; read -srn 1
-
-# Responding to a newspaperless grandpa
-selectOption "Go back and get it" "Make up a lie" "Just tell the truth"
-x=$?
-hasNewspaper=0
-# Go back and get it
-if [ $x -eq 1 ]
-    then 
-        echo -e "\nYou go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
-        echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"; read -srn 1
-        addDigitron "BasicEnemyStrong    40    Water" "Punch    25" "Kick    25" "Waterth    35"
-        fight "Pip" "BasicEnemyStrong"
-        hasNewspaper=1
-        #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
-# Lie
-elif [ $x -eq 2 ]
-    then
-        echo "Sorry grandpa! A digitron ate it"; read -srn 1
+# Loading grandpa! A digitron ate it"; read -srn 1
 # Tell the truth
-elif [ $x -eq 3 ]
+if [ $x -eq 3 ]
     then
         echo "I forgot, sorry! The digitron tournament has taken over my head"; read -srn 1
         sleep 1
 fi
 
-if [ $hasNewspaper -eq 1 ]
+if [ "$hasNewspaper" -eq 1 ]
     then
         echo "You make finally arrive to your grandpa's (again) and hand him his newspaper"; read -srn 1
         echo "'What's got you looking so worried boy?'"; read -srn 1
         echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
         
-elif [ $hasNewspaper -eq 0 ]
+elif [ "$hasNewspaper" -eq 0 ]
     then    
         echo "'Oh.. That's alright boy whats got you so worked up?'"; read -srn 1
         echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
