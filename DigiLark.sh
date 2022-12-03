@@ -336,8 +336,8 @@ function fight()
                             echo -n "Which would you like to switch to? > "
                             read -r changeDigi
 
-                            # Checking input
-                            while [ "$(grep -c "$changeDigi" < ./player.dat)" -eq 0 ]
+                            # Checking input (whole words)
+                            while [ "$(grep -wc "$changeDigi" < ./player.dat)" -eq 0 ]
                             do
                                 echo -n "Digitron not found. Try again > "
                                 read -r changeDigi
@@ -651,7 +651,7 @@ done
 if [ $x -eq 1 ]
     then 
         echo -e "\n~~~ You've added Croncher! ~~~\n"; read -srn 1
-        addDigitron "Croncher    40    Water" "Punch    10"
+        addDigitron "Croncher    35    Water" "Punch    20" "Kick    20"
         echo "Croncher" >> ./player.dat
 # Leaving the wild digi
 elif [ $x -eq 2 ]
@@ -723,13 +723,13 @@ fi
 
 echo "'Alright boy, let's try your new move'"; read -srn 1
 fightWithGramps=1
-addDigitron "Grandpa'sLegendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
-fight "Pip" "Grandpa'sLegendary"
+addDigitron "Grandpa's_Legendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
+fight "Pip" "Grandpa's_Legendary"
 echo "Good job $name, now you are ready to go to the tournament"; read -srn 1
-
-echo "Now, with new a new move and treat your grand-pa-pa gave you, you head over to the digi stadium"; read -srn 1
 echo "'Oh, and don't worry about your digitron. I've healed him 100 health.'"; read -srn 1
-echo "As you approach the stadium, you start hearing chants and you are wowed by it"; read -srn 1
+echo "Now, with new a new move and treat your grand-pa-pa gave you, you head over to the digi stadium"; read -srn 1
+
+echo -e "\nAs you approach the stadium, you start hearing chants and you are wowed by it"; read -srn 1
 
 # Loading stadium art
 if [ -f ./.asciiArt/stadium ]
@@ -737,6 +737,6 @@ if [ -f ./.asciiArt/stadium ]
 fi
 
 # TODO
-echo "Tournament to be continued. Thanks for playing!"; read -srn 1
-echo "-Isaac Fernandes and Nelson Suarez"; read -srn 1
-exit
+echo "Tournament to be continued. Thanks for playing!"
+echo "DigiLark"
+echo "By: Isaac Fernandes and Nelson Suarez"; read -srn 1
