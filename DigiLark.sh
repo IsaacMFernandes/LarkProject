@@ -475,7 +475,7 @@ if [ "$response" = "y" ] || [ "$response" = "Y" ] || [ "$response" = "yes" ] || 
     then animate=0
 else
     echo "We recommend increasing your terminal size to 45x150 for the best animations"
-    echo "Your current terminal size is $(tput lines)x$(tput cols)"; read -srn 1
+    echo "Your current terminal size is $(tput lines)x$(tput cols)"; sleep 0.5
 fi
 
 # Create player data file if it does not exist
@@ -589,8 +589,10 @@ echo "'Well, I don't know how, but you beat me...'"; read -srn 1
 echo -e "\nKid with big goofy goggles runs away crying."; read -srn 1
 echo "Hmm... Seems like in his despair, the kid has dropped something."; read -srn 1
 
-# Loading digitron ball art
-cat ./.asciiArt/digitronBall; read -srn 1
+# Loading digitron ball art if it exists
+if [ -f ./.asciiArt/digitronBall ]
+    then cat ./.asciiArt/digitronBall; read -srn 1
+fi
 
 # Getting/inspecting/kicking digitron ball
 echo -e "\nDo you ..."
@@ -737,6 +739,10 @@ if [ -f ./.asciiArt/stadium ]
 fi
 
 # TODO
+
+# End screen
 echo "Tournament to be continued. Thanks for playing!"
-echo "DigiLark"
-echo "By: Isaac Fernandes and Nelson Suarez"; read -srn 1
+if [ -f ./.asciiArt/DigiLark.txt ]
+    then cat ./.asciiArt/DigiLark.txt
+fi
+echo "  By: Isaac Fernandes and Nelson Suarez"; read -srn 1
