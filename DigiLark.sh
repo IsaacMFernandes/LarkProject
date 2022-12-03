@@ -348,7 +348,7 @@ function fight()
         # When one digi dies, and you have others, switch to another, unless you're fighting grandpa
         if [ "$playerHealth" -le "0" ] && [ "$digisOwned" -gt "1" ] && [ $fightWithGramps -eq 0 ]
             then
-                echo -e "\n$playerDigi has fainted..."; read -srn 1
+                echo -e "\n$playerDigi has fainted..."; sleep 1
 
                 # Remove it from player.dat
                 sed -i "/$playerDigi/d" ./player.dat
@@ -358,7 +358,7 @@ function fight()
                 playerDigi=$(gawk 'NR==2{print $1}' ./player.dat)
                 playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$playerDigi".digi)
                 digisOwned="$((digisOwned-1))"
-                read -srn 1
+                sleep 1
         fi
 
         # If neither digitron are dead
@@ -373,12 +373,12 @@ function fight()
         fi
     done
 
+    tput clear
+    echo -e "~~~ Press any key to continue dialogue ~~~\n"
+
     # Win condition
     echo "Congrats, you've won"
     levelUp
-
-    tput clear
-    echo -e "~~~ Press any key to continue dialogue ~~~\n"
 }
 
 # Function to level up
@@ -545,7 +545,7 @@ fi
 
 # Unlocking a new move
 echo "Kick    15" >> ./.digitrons/Pip.digi
-echo "~~~ You have unlocked a new move: Kick ~~~"; read -srn 1
+echo -e "\n~~~ You have unlocked a new move: Kick ~~~\n"; read -srn 1
 
 # Kid runs away, drops digitron ball
 echo "'Well, I don't know how, but you beat me...'"; read -srn 1
@@ -579,8 +579,9 @@ if [ $x -eq 1 ]
             echo -n "Please enter a name: "
             read -r digiName
         done
-        addDigitron "$digiName    20    Fire" "Punch    5"
+        addDigitron "$digiName    20    Fire" "Punch    5" "Kick    10"
         echo "$digiName" >> ./player.dat
+        echo -e "\n~~~ Now that you have more than one digitron, you can use the 'cd' command in a battle! ~~~"; read -srn 1
 # Fighting a very difficult boss
 elif [ $x -eq 3 ]
     then
@@ -590,7 +591,7 @@ elif [ $x -eq 3 ]
 fi
 
 # Finding a wild digitron
-echo -e "\n'Alright, lets keep going to gramps.'"; read -srn 1
+echo -e "\n'Alright, lets keep going to gramps', you say."; read -srn 1
 echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
 echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
 addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Waterth    30"
@@ -612,7 +613,7 @@ done
 # Adding the wild digi
 if [ $x -eq 1 ]
     then 
-        echo -e "~~~ You've added Croncher! ~~~"; read -srn 1
+        echo -e "\n~~~ You've added Croncher! ~~~\n"; read -srn 1
         addDigitron "Croncher    40    Water" "Punch    10"
         echo "Croncher" >> ./player.dat
 # Leaving the wild digi
