@@ -1,0 +1,5 @@
+# Set default behavior
+* text=auto
+
+# Declare .sh files to use LF line endings
+*.sh text eol=lf
