@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# Clear .digitrons if it exists already
+if [ -d .digitrons ]
+    then rm -r .digitrons
+fi
+
 # Any global variables defined/modified here
 PS3="> "
 fightWithGramps=0
@@ -112,6 +117,7 @@ function fight()
                 while true
                 do
                     # Check if you're not dead yet
+                    #echo "$playerHealth"
                     if [ "$playerHealth" -le 0 ]
                         then
                             echo "$2 has defeated you :("; read -srn 1
@@ -124,8 +130,12 @@ function fight()
                             dead
                     fi
 
+                    # Clear input
+                    read -t 1 -srn 10000 d
+
                     echo -n "Your turn: "
                     read -r command
+                    #echo "$command"
 
                     # Understanding player input
                     case "$command" in
@@ -299,7 +309,7 @@ function fight()
         # When one digi dies, and you have others, switch to another, unless you're fighting grandpa
         if [ "$playerHealth" -le "0" ] && [ "$digisOwned" -gt "1" ] && [ $fightWithGramps -eq 0 ]
             then
-                echo -e "\n$playerDigi has fainted..."
+                echo -e "\n$playerDigi has fainted..."; read -srn 1
 
                 # Remove it from player.dat
                 sed -i "/$playerDigi/d" ./player.dat
@@ -309,11 +319,15 @@ function fight()
                 playerDigi=$(gawk 'NR==2{print $1}' ./player.dat)
                 playerHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$playerDigi".digi)
                 digisOwned="$((digisOwned-1))"
+                read -srn 1
         fi
 
         # If neither digitron are dead
         if [ "$enemyHealth" -gt "0" ] && [ "$playerHealth" -gt "0" ]
             then echo "Turn ending, switching to other player"; read -srn 1
+            if [ $turn -eq 1 ]
+                then echo "Tip: On your opponents turn, you do not need to press anything."; read -srn 1
+            fi
         fi
     done
 
@@ -321,6 +335,9 @@ function fight()
     echo "Congrats, you've won"
     levelUp
     echo "------------------------------------------------------------------"
+
+    tput clear
+    echo -e "~~~ Press any key to continue dialogue ~~~\n"
 }
 
 # Function to level up
@@ -393,9 +410,12 @@ sleep 1
 #TODO
 # Check if game has been started already (not a priority)
 echo "Starting new game..."
-echo "Press any key to continue dialogue"
+echo "When this game pauses, press any key to continue"
 read -srn 1
 tput clear
+
+# I moved this line next to dialogue
+echo -e "~~~ Press any key to continue dialogue ~~~\n"
 
 # Story part, using read -srn 1 to let the user decide when to move on to the next dialogue
 echo "You open your eyes, a subtle pain lingering through your head."; read -srn 1
@@ -493,6 +513,11 @@ if [ $x -eq 1 ]
         echo -e "\nNow you have his Digitron! This might come in handy later"
         echo -n "What would you like to name your new digitron? > "
         read -r digiName
+        while [ "$digiName" = "" ]
+        do
+            echo -n "Please enter a name: "
+            read -r digiName
+        done
         addDigitron "$digiName    20    Fire" "Punch    5"
         echo "$digiName" >> ./player.dat
 # Fighting a very difficult boss
@@ -526,7 +551,7 @@ done
 # Adding the wild digi
 if [ $x -eq 1 ]
     then 
-        echo -e "You've added Croncher!"; read -srn 1
+        echo -e "~~~ You've added Croncher! ~~~"; read -srn 1
         addDigitron "Croncher    40    Water" "Punch    10"
         echo "Croncher" >> ./player.dat
 # Leaving the wild digi
