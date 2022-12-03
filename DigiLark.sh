@@ -7,6 +7,7 @@ fi
 
 # Any global variables defined/modified here
 PS3="> "
+animate=1
 fightWithGramps=0
 
 function punchAnimation()
@@ -184,7 +185,11 @@ function fight()
                         "./Punch"|"./punch")
                             punchPower=$(gawk 'NR==2{print int($2)}' ./.digitrons/"$playerDigi".digi)
                             punchPower=$((punchPower+levelAdjustment))
-                            punchAnimation
+
+                            # Showing the punch animation if it is still enabled
+                            if [ $animate -eq 1 ]
+                                then punchAnimation
+                            fi
 
                             echo "$playerDigi launches a right hook dealing $punchPower damage!"
 
@@ -339,9 +344,12 @@ function fight()
 
         # If neither digitron are dead
         if [ "$enemyHealth" -gt "0" ] && [ "$playerHealth" -gt "0" ]
-            then echo "Turn ending, switching to other player"; read -srn 1
+            then
             if [ $turn -eq 1 ]
-                then echo "Tip: On your opponents turn, you do not need to press anything."; read -srn 1
+                then echo -e "\nTurn ending, switching to other player"
+                echo "Tip: On your opponents turn, you do not need to press anything."; read -srn 1
+            else
+                echo -e "\nTurn ending, switching to other player"; read -srn 1
             fi
         fi
     done
@@ -349,7 +357,6 @@ function fight()
     # Win condition
     echo "Congrats, you've won"
     levelUp
-    echo "------------------------------------------------------------------"
 
     tput clear
     echo -e "~~~ Press any key to continue dialogue ~~~\n"
@@ -366,7 +373,7 @@ function levelUp()
         newHealth=$((oldHealth+25))
         sed -i "1 s/$oldHealth/$newHealth/" ./.digitrons/"$d".digi
     done
-    echo "~~~~~ You have leveled up! You are now level $level ~~~~~"; read -srn 1
+    echo -e "\n~~~~~ You have leveled up! You are now level $level ~~~~~"; read -srn 1
     echo "~~~~~~~ Your digitrons have all healed by 25! ~~~~~~~"; read -srn 1
     echo "~~~~~~ and their attacks will do 5 more damage ~~~~~~"; read -srn 1
 }
@@ -391,8 +398,29 @@ tput clear
 trap onExit SIGINT SIGTERM
 
 # Starting the game
-echo "Welcome to my Lark Game"
+echo "Welcome to DigiLark!"
 sleep 1
+
+# Asking the user if they want to disable animation
+echo -e "\nAt some points in this game, there will be flashing ascii art."
+echo "Would you like to disable these animations? (y/n)"
+read -r response
+
+while [ "$response" = "" ]
+do
+    echo -n "Please enter something: "
+    read -r response
+done
+while [ ! "$response" = "y" ] && [ ! "$response" = "Y" ] && [ ! "$response" = "N" ] && [ ! "$response" = "n" ] && [ ! "$response" = "Yes" ] && [ ! "$response" = "yes" ] && [ ! "$response" = "no" ] && [ ! "$response" = "No" ]
+do
+    echo -n "Response unknown. Would you like to disable flashing text: "
+    read -r response
+done
+if [ "$response" = "y" ] || [ "$response" = "Y" ] || [ "$response" = "yes" ] || [ "$response" = "Yes" ]
+    then animate=0
+else
+    animate=1
+fi
 
 # Create player data file if it does not exist
 if [ ! -f ./player.dat ]
@@ -405,7 +433,7 @@ if [ ! -f ./player.dat ]
 fi
 
 # Read user input for name
-echo -n "What is your name? > "
+echo -ne "\nWhat is your name? > "
 read -r name
 
 # Save player name, or recognize existing player
