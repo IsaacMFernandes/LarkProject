@@ -24,6 +24,12 @@ function punchAnimation()
         size="Large"
     fi
 
+    # Check if folder exists
+    if [ ! -d .asciiArt/.punch"$size" ]
+        then echo -e "\nError: $size punch folder not found.\n"
+        return
+    fi
+
     # Save the screen
     tput smcup
 
@@ -32,7 +38,6 @@ function punchAnimation()
     do
         tput clear
         cat "$frame"
-        #echo "$frame"
         sleep 0.1
     done
 
@@ -44,7 +49,7 @@ function punchAnimation()
 
 function kickAnimation()
 {
-    # Follows the same logic as 
+    # Follows the same logic as punch animation
     if [ "$(tput lines)" -lt 30 ] || [ "$(tput cols)" -lt 100 ]
         then echo -e "\nCould not load animation. Please increase your terminal size.\n"
         return
@@ -54,12 +59,16 @@ function kickAnimation()
         size="Large"
     fi
 
+    if [ ! -d .asciiArt/.kick"$size" ]
+        then echo -e "\nError: $size kick folder not found.\n"
+        return
+    fi
+
     tput smcup
     for frame in .asciiArt/.kick"$size"/*
     do
         tput clear
         cat "$frame"
-        #echo "$frame"
         sleep 0.1
     done
     echo "Press any button to continue."
@@ -421,9 +430,9 @@ function fight()
 function levelUp()
 {
     level=$((level+1))
-    for (( i=0; i<digisOwned; i++ ))
+    for (( index=0; index < digisOwned; index++ ))
     do
-        d=$(gawk 'NR==((i+2)){print $1}' ./player.dat)
+        d=$(gawk -v i="$index" 'NR==((i+2)){print $1}' ./player.dat)
         oldHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$d".digi)
         newHealth=$((oldHealth+25))
         sed -i "1 s/$oldHealth/$newHealth/" ./.digitrons/"$d".digi
@@ -431,6 +440,17 @@ function levelUp()
     echo -e "\n~~~~~ You have leveled up! You are now level $level ~~~~~"; read -srn 1
     echo "~~~~~~~ Your digitrons have all healed by 25! ~~~~~~~"; read -srn 1
     echo "~~~~~~ and their attacks will do 5 more damage ~~~~~~"; read -srn 1
+}
+
+# Function to add a move to all digitrons player owns
+# param 1 - move to add
+function addMove()
+{
+    for (( index=0; index < digisOwned; index++ ))
+    do
+        d=$(gawk -v i="$index" 'NR==((i+2)){print $1}' ./player.dat)
+        echo "$1" >> ./.digitrons/"$d".digi
+    done
 }
 
 # Function when the player dies
@@ -455,6 +475,11 @@ trap onExit SIGINT SIGTERM
 # Starting the game
 echo "Welcome to DigiLark!"
 sleep 1
+
+if [ ! -d ./.asciiArt ]
+    then echo -e "\nWarning: the art folder (.asciiArt) is missing.\nVisual elements will not load.\n"
+    sleep 1
+fi
 
 # Asking the user if they want to disable animation
 echo -e "\nAt some points in this game, there will be flashing ascii art."
@@ -502,6 +527,24 @@ fi
 
 # Erasing everything in the player.dat file, to start over with owned digitrons
 echo "$name" > player.dat
+
+# Resetting brackets
+cat ./.asciiArt/bracket_clean > ./.asciiArt/bracket
+cat ./.asciiArt/bracket2_clean > ./.asciiArt/bracket2
+cat ./.asciiArt/bracket3_clean > ./.asciiArt/bracket3
+
+# Bracket 1
+sed -i "1 c $name" ./.asciiArt/bracket
+
+# Bracket 2
+sed -i "1 c $name" ./.asciiArt/bracket2
+sed -i "3 s/$/$name/" ./.asciiArt/bracket2
+
+# Bracket 3
+sed -i "1 c $name" ./.asciiArt/bracket3
+sed -i "3 s/$/$name/" ./.asciiArt/bracket3
+sed -i "6 s/$/$name/" ./.asciiArt/bracket3
+
 level=0
 sleep 1
 
@@ -576,12 +619,12 @@ if [ $x -eq 3 ]
         echo "'Here, this is Pip. You can have him. Now let's PLAY!'"; read -srn 1
         addDigitron "Pip    100    Water" "Punch    10"
         echo "Pip" >> ./player.dat
-        addDigitron "Goofy    20    Fire" "Punch    5" "Kick   10" "Fireth     15"
-        fight "Pip" "Goofy"
+        addDigitron "Goofy    20    Fire" "Punch    5" "Kick    10" "Flame    15"
+        fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Goofy"
 fi
 
 # Unlocking a new move
-echo "Kick    15" >> ./.digitrons/Pip.digi
+addMove "Kick    15"
 echo -e "\n~~~ You have unlocked a new move: Kick ~~~\n"; read -srn 1
 
 # Kid runs away, drops digitron ball
@@ -625,16 +668,16 @@ if [ $x -eq 1 ]
 elif [ $x -eq 3 ]
     then
         echo "This has caused the digitron to break lose!"; read -srn 1
-        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75" "NuclearExplosion    150"
-        fight "Pip" "Unknown"
+        addDigitron "Unknown    300    ?" "Punch    50" "Kick    75" "Nuclear_Explosion    150"
+        fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Unknown"
 fi
 
 # Finding a wild digitron
 echo -e "\n'Alright, lets keep going to gramps', you say."; read -srn 1
 echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
 echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
-addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Waterth    30"
-fight "Pip" "Croncher"
+addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Wave    30"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Croncher"
 
 # When the enemy gets beaten
 echo -e "\nWhew, that was close. What should you do with the defeated digitron?"
@@ -655,45 +698,43 @@ if [ $x -eq 1 ]
         echo -e "\n~~~ You've added Croncher! ~~~\n"; read -srn 1
         addDigitron "Croncher    35    Water" "Punch    20" "Kick    20"
         echo "Croncher" >> ./player.dat
+        digisOwned=$(("$digisOwned"+1))
 # Leaving the wild digi
 elif [ $x -eq 2 ]
-    then
-        echo "'I'm sure someone will find good use in this one, but not me.'"
+    then echo "'I'm sure someone will find good use in this one, but not me.'"
 fi
 
 # Getting to grandpa's
-echo "Alright, you finally make it to your grandpa's and... "; read -srn 1
+echo "You finally make it to your grandpa's and... "; read -srn 1
 echo "You forgot his newspaper."; read -srn 1
-echo -e "\n'Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?'"; read -srn 1
+echo -e "\n'Golly dangit, child. Where is my newspaper? Well? What do you have to say for yourself?'"; read -srn 1
 
 # Responding to a newspaperless grandpa
 selectOption "Go back and get it" "Make up a lie" "Just tell the truth"
 x=$?
+
 # Go back and get it
 if [ $x -eq 1 ]
     then 
-        echo -e "\nYou go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
+        echo -e "\nYou go into town and get his newspaper ... In the distance you see the goofy goggles kid frolicking in a meadow."; read -srn 1
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"; read -srn 1
-        addDigitron "BasicEnemyStrong    40    Water" "Punch    25" "Kick    25" "Waterth    35"
-        fight "Pip" "BasicEnemyStrong"
+        addDigitron "Circuit    50    Earth" "Punch    25" "Kick    25" "Shock    35"
+        fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Circuit"
         hasNewspaper=1
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
 elif [ $x -eq 2 ]
-    then
-        echo "Sorry grandpa! A digitron ate it"; read -srn 1
+    then echo "Sorry grandpa! A digitron ate it"; read -srn 1
 # Loading grandpa! A digitron ate it"; read -srn 1
 # Tell the truth
 elif [ $x -eq 3 ]
-    then
-        echo "I forgot, sorry! The digitron tournament has taken over my head"; read -srn 1
-        sleep 1
+    then echo "I forgot, sorry! The digitron tournament has taken over my head"; read -srn 1
 fi
 
 if [ "$hasNewspaper" -eq 1 ]
     then
-        echo "You make finally arrive to your grandpa's (again) and hand him his newspaper"; read -srn 1
-        echo "'What's got you looking so worried boy?'"; read -srn 1
+        echo -e "\nYou finally arrive to your grandpa's (again) and hand him his newspaper"; read -srn 1
+        echo "'What's got you looking so worried?'"; read -srn 1
         echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
         
 elif [ "$hasNewspaper" -eq 0 ]
@@ -702,33 +743,54 @@ elif [ "$hasNewspaper" -eq 0 ]
         echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
 fi
 
-echo "Oh how I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
+echo "'Oh how I remember the good old days. I'll teach you some of what I know, but not without teaching you some digi history first...'"; read -srn 1
+echo "You see grandpa dusting off his old laptop and when he turns it on, an odd creature appears"; read -srn 1
+cat ./.asciiArt/linuxLaptop; read -srn 1
+echo "'Here it is, the origin of it all'"; read -srn 1
+echo "'Back in my day, digitrons only existed inside this program called L.I.N.U.X'"; read -srn 1
+echo "'The same commands you'd use for your digi, you'd use here!, let me show you'"; read -srn 1
+cat ./.asciiArt/linuxLaptopex; read -srn 1
+echo "'cd would change what directory you are working on'"; read -srn 1
+echo "'ls would show you which files you can access in the directory'"; read -srn 1
+echo "'vim would let you see the file and edit'"; read -srn 1
+echo "'and last but not least, cat would let you peek at a file'"; read -srn 1
+echo "'There's many, many more commands but these are the basics, make sure to come back to learn more if you want'"; read -srn 1
+echo "'Now, where was I? Oh yes, one day, a LINUX scientist managed to bring the programs to life with the use of quantum tunneling and shelling.'"; read -srn 1
+echo "'That explains why they are called digitrons!'"; read -srn 1
+echo "'Yes, my child... '"; read -srn 1
+echo "'Whats wrong grandpa?'"; read -srn 1
+echo "'The creature you saw... that was TUX, the first digitron.'"; read -srn 1
+echo "'No one has seen them in a long, long time. I've got bad feeling about this tournament...'"; read -srn 1
+echo "'This is why I will teach you a new move'"; read -srn 1
 echo "Which move would you like to learn?"; read -srn 1
+
 selectOption "Heal" "Stun" "Charged attack"
 x=$?
 
-#TODO moves
 if [ $x -eq 1 ]
     then 
-        echo "Heal    20" >> ./.digitrons/Pip.digi
-        echo "~~~ You have unlocked a new move: Heal ~~~"; read -srn 1
+        addMove "Heal    20"
+        echo -e "\n~~~ You have unlocked a new move: Heal ~~~\n"; read -srn 1
 elif [ $x -eq 2 ]
     then
-        echo "Stun    20" >> ./.digitrons/Pip.digi
-        echo "~~~ You have unlocked a new move: Stun ~~~"; read -srn 1
+        addMove "Stun    20"
+        echo -e "\n~~~ You have unlocked a new move: Stun ~~~\n"; read -srn 1
 elif [ $x -eq 3 ]
     then
-        echo "Charged   40" >> ./.digitrons/Pip.digi
-        echo "~~~ You have unlocked a new move: Charged Attack ~~~"; read -srn 1
+        addMove "Charged   40"
+        echo -e "\n~~~ You have unlocked a new move: Charged Attack ~~~\n"; read -srn 1
 fi
 
-echo "'Alright boy, let's try your new move'"; read -srn 1
+# Begin fight with grandpa
+echo -e "\n'Alright boy, let's try your new move'"; read -srn 1
 fightWithGramps=1
-addDigitron "Grandpa's_Legendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
-fight "Pip" "Grandpa's_Legendary"
+addDigitron "Grandpa's_Legendary    1000    Divine" "Punch    100" "Kick    120" "Vaporize    200"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Grandpa's_Legendary"
+
+# Grandpa destroys player, heals digitron
 echo "Good job $name, now you are ready to go to the tournament"; read -srn 1
-echo "'Oh, and don't worry about your digitron. I've healed him 100 health.'"; read -srn 1
-echo "Now, with new a new move and treat your grand-pa-pa gave you, you head over to the digi stadium"; read -srn 1
+echo "'Oh, and don't worry about your digitron. I've healed him to 100 health.'"; read -srn 1
+echo "Now, with your new move and knowledge your grand-pa-pa gave you, you head over to Shell Stadium"; read -srn 1
 
 echo -e "\nAs you approach the stadium, you start hearing chants and you are wowed by it"; read -srn 1
 
@@ -737,11 +799,123 @@ if [ -f ./.asciiArt/stadium ]
     then cat ./.asciiArt/stadium; read -srn 1
 fi
 
-# TODO
+# Continuing story at stadium
+echo -e "\nLADIES AND GENTLEMEN! WELCOME, TO THE 32nd ANNUAL BASH BATTLES TOURNAMENT!"; read -srn 1
+echo "I HOPE EACH AND EVERYONE OF YOU HAD A SAFE JOURNEY TO SHELL STADIUM."; read -srn 1
+echo "BUT, NOW! IT IS TIME TO SEE WHO IS THE BEST DIGITRON DUELER!"; read -srn 1
+echo -e "\nYou make your way over the concession stand and hand over your ID."; read -srn 1
+echo -e "The lady hands back a laminated poster showing the brackets for the tournament.\n"; read -srn 1
+
+# Loading tournament bracket
+if [ -f ./.asciiArt/bracket ]
+    then cat ./.asciiArt/bracket; read -srn 1
+fi
+
+echo -e "\nYou make your way over to your booth and you see someone in the opponent's section."; read -srn 1
+echo "Sitting there is a man with an eye patch and wooden leg."; read -srn 1
+echo -e "\n'Arrghgh...', he mutters"; read -srn 1
+echo "'So yer the kid they gave me...'"; read -srn 1
+echo "'Prreparrrre... to be plunderred!'"; read -srn 1
+echo -e "\nATTENTION ALL PARTICIPANTS! MATCH ONE WILL BEGIN SHORTLY!"; read -srn 1
+
+# First fight of match 1
+addDigitron "BlackPearl    50    Fire" "Cannon    20" "Bomb    25" "TNT    30"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "BlackPearl"
+
+# Second fight of match 1
+echo -e "\n'Arrrghgh... how bout ye try this one 'nstead!'"; read -srn 1
+addDigitron "Fortune    60    Fire" "Cannon    25" "Bomb    20" "TNT    30"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Fortune"
+
+# Third fight of match 1
+echo -e "\n'ARRRGHHGH... I KNOW YE CANT BEAT THIS ONE!'"; read -srn 1
+addDigitron "JollyRoger    70    Fire" "Cannon    30" "Bomb    25" "Raid    35"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "JollyRoger"
+
+echo -e "\n'arr... I havn't a clue how ye beat me, but yu'v errn'd my rrrespect!'\n"; read -srn 1
+echo "CONGRATULATIONS TO OUR MATCH 1 WINNERS! MOVING ON TO MATCH 2! HERE ARE YOUR STANDINGS!"; read -srn 1
+
+# Loading updated tournament bracket
+if [ -f ./.asciiArt/bracket2 ]
+    then cat ./.asciiArt/bracket2; read -srn 1
+fi
+
+echo -e "\nYou walk over to your second battle booth, gleaming with joy from the previous win."; read -srn 1
+echo "As you get closer, you see a small child in the opponent's booth."; read -srn 1
+echo "'Excuse me, little girl. Are you lost?', you ask."; read -srn 1
+echo -e "\n'How DARE you! I'm your opponent, idiot, and I'm gonna take you down, loser!'"; read -srn 1
+echo "'I apologize, I thought...'"; sleep 0.5
+echo "'Whatever. Let's just battle. And I'm not a little girl by the way. I'm 13.'"; read -srn 1
+echo -e "\nATTENTION ALL PLAYERS. MATCH TWO IS STARTING NOW. BEGIN!"; read -srn 1
+
+# First fight of match 2
+addDigitron "Barbietron    80    Wind" "Jab    20" "Slap    25" "Yell    10"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Barbietron"
+
+# Second fight of match 2
+echo -e "\n'Ughh whatever. Let's see if you can beat this!'"; read -srn 1
+addDigitron "Ponytron    90    Wind" "Headbutt    30" "Trample    35" "Stampede    40"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Ponytron"
+
+# Third fight of match 2
+echo -e "\n'UGHHH I HATE YOU. There's no way you can defeat this next one!'"; read -srn 1
+addDigitron "Elsa    100    Wind" "IceShard    40" "Blizzard    45" "Hail    50"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Elsa"
+
+echo -e "\n'This is just lame.. good job.. I guess...'\n"; read -srn 1
+echo "GREAT JOB CONTESTANTS AND GOOD FIGHTS ALL AROUND! MOVING ON TO THE GRAND FINALE!"; read -srn 1
+echo -e "HERE IS THE FINAL BRACKET!\n"; read -srn 1
+
+# Loading final tournament bracket
+if [ -f ./.asciiArt/bracket3 ]
+    then cat ./.asciiArt/bracket3; read -srn 1
+fi
+
+echo -e "\nAs you make your way to the final booth, you see no light coming from the opponent's booth."; read -srn 1
+echo "You look closer inside, and there you find a dimly lit computer with a mouse and keyboard."; read -srn 1
+echo -e "You shake the mouse a bit, and on the screen pops up a face that you swear you've seen before.\n"; read -srn 1
+
+if [ -f ./.asciiArt/linuxLaptop ]
+    then cat ./.asciiArt/linuxLaptop
+fi
+
+echo -e "\n'TUX! What are you doing here!', you ask."; read -srn 1
+echo "'Why, I am here to beat YOU, $name.', he replys."; read -srn 1
+echo "'I'm afraid I won't let that happen, TUX."; read -srn 1
+echo "I am going to be the best digitron battler in the WORLD!', you reply, confidence growing by the second."; read -srn 1
+echo "'You better put your actions where your mouth is, not that I would know where it is... You get what I mean'"; read -srn 1
+echo -e "\nFINALISTS, GET READY. FIGHT!"; read -srn 1
+
+# First battle of third match
+addDigitron "TUX    150    Divine" "rm    40" "rmdir    45" "delete    50"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "TUX"
+
+# Second battle of third match
+echo -e "\n'You're gonna have to be better than that if you're gonna beat me!'"; read -srn 1
+addDigitron "TUX    200    Divine" "delete    40" "backspace    45" "ctrl+a    55"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "TUX"
+
+# Second battle of third match
+echo -e "\n'Not bad... but I'm not done yet!'"; read -srn 1
+addDigitron "TUX    300    Divine" "lost_connection    75" "high_ping    65" "packet_loss    70"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "TUX"
+
+echo -e "'Well, I'm not sure how, but you defeated me... Well done. You truly are the greatest digitron dueler.'"; read -srn 1
+echo "THERE YOU HAVE IT, FOLKS. $name IS THE GREATEST IN THE WORLD!!!"; read -srn 1
+echo -e "\nIn the distance, you can feel your grandpop's presence."; read -srn 1
+echo "In fact, you see him in the f bleachers waving down."; read -srn 1
+
+if [ $hasNewspaper -eq 1 ]
+    then echo "'THANK YOU FOR GETTING MY PAPER, MY GRANDCHILD!!', he calls."; read -srn 1
+fi
+
+echo -n "You smile, and think to yourself: 'Wow..."; read -srn 1
+echo -n " I did it..."; read -srn 1
+echo -e " I am the greatest digitron battler.\n"; read -srn 1
 
 # End screen
-echo "Tournament to be continued. Thanks for playing!"
+echo -e "\nThank you for playing!"
 if [ -f ./.asciiArt/DigiLark.txt ]
     then cat ./.asciiArt/DigiLark.txt
 fi
-echo "  By: Isaac Fernandes and Nelson Suarez"; read -srn 1
+echo "  By: Isaac Fernandes and Nelson Suarez"
