@@ -430,9 +430,11 @@ function fight()
 function levelUp()
 {
     level=$((level+1))
-    for (( i=0; i<digisOwned; i++ ))
+    for (( index=0; index < digisOwned; index++ ))
     do
-        d=$(gawk 'NR==((i+2)){print $1}' ./player.dat)
+        echo "$digisOwned"
+        echo "$index"
+        d=$(gawk -v i="$index" 'NR==((i+2)){print $1}' ./player.dat)
         oldHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$d".digi)
         newHealth=$((oldHealth+25))
         sed -i "1 s/$oldHealth/$newHealth/" ./.digitrons/"$d".digi
@@ -446,9 +448,10 @@ function levelUp()
 # param 1 - move to add
 function addMove()
 {
-    for (( i=0; i<digisOwned; i++ ))
+    for (( index=0; index < digisOwned; index++ ))
     do
-        d=$(gawk 'NR==((i+2)){print $1}' ./player.dat)
+        d=$(gawk -v i="$index" 'NR==((i+2)){print $1}' ./player.dat)
+        echo "$d"
         echo "$1" >> ./.digitrons/"$d".digi
     done
 }
@@ -678,8 +681,9 @@ done
 if [ $x -eq 1 ]
     then 
         echo -e "\n~~~ You've added Croncher! ~~~\n"; read -srn 1
-        addDigitron "Croncher    35    Water" "Punch    20" "Kick    20" "Wave    20"
+        addDigitron "Croncher    35    Water" "Punch    20" "Kick    20"
         echo "Croncher" >> ./player.dat
+        digisOwned=$(("$digisOwned"+1))
 # Leaving the wild digi
 elif [ $x -eq 2 ]
     then echo "'I'm sure someone will find good use in this one, but not me.'"
@@ -705,14 +709,11 @@ if [ $x -eq 1 ]
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
 elif [ $x -eq 2 ]
-    then
-        echo "Sorry grandpa! A digitron ate it"; read -srn 1
+    then echo "Sorry grandpa! A digitron ate it"; read -srn 1
 # Loading grandpa! A digitron ate it"; read -srn 1
 # Tell the truth
 elif [ $x -eq 3 ]
-    then
-        echo "I forgot, sorry! The digitron tournament has taken over my head"; read -srn 1
-        sleep 1
+    then echo "I forgot, sorry! The digitron tournament has taken over my head"; read -srn 1
 fi
 
 if [ "$hasNewspaper" -eq 1 ]
@@ -729,6 +730,7 @@ fi
 
 echo "Oh how I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
 echo "Which move would you like to learn?"; read -srn 1
+
 selectOption "Heal" "Stun" "Charged attack"
 x=$?
 
@@ -747,13 +749,16 @@ elif [ $x -eq 3 ]
         echo -e "\n~~~ You have unlocked a new move: Charged Attack ~~~\n"; read -srn 1
 fi
 
+# Begin fight with grandpa
 echo "'Alright boy, let's try your new move'"; read -srn 1
 fightWithGramps=1
 addDigitron "Grandpa's_Legendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
 fight "Pip" "Grandpa's_Legendary"
+
+# Grandpa destroys player, heals digitron
 echo "Good job $name, now you are ready to go to the tournament"; read -srn 1
-echo "'Oh, and don't worry about your digitron. I've healed him 100 health.'"; read -srn 1
-echo "Now, with new a new move and treat your grand-pa-pa gave you, you head over to the digi stadium"; read -srn 1
+echo "'Oh, and don't worry about your digitron. I've healed him to 100 health.'"; read -srn 1
+echo "Now, with your new move and knowledge your grand-pa-pa gave you, you head over to Shell Stadium"; read -srn 1
 
 echo -e "\nAs you approach the stadium, you start hearing chants and you are wowed by it"; read -srn 1
 
