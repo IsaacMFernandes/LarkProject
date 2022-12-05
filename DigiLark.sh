@@ -742,7 +742,25 @@ elif [ "$hasNewspaper" -eq 0 ]
         echo "Today is the digitron tournament! but I dont think I am prepared for it"; read -srn 1
 fi
 
-echo "Oh how I remember the good old days. In fact, i'll teach you some useful moves and help you train..."; read -srn 1
+echo "'Oh how I remember the good old days. In fact, i'll teach you some useful moves but not without teaching you some digi history first boy...'"; read -srn 1
+echo "You see grandpa dusting off his old laptop and when he turns it on, an odd creature appears"; read -srn 1
+cat ./.asciiArt/linuxLaptop; read -srn 1
+echo "'Here it is boy, the origin of it all'"; read -srn 1
+echo "'Back in my day, digitrons only existed inside this program called L.I.N.U.X'"; read -srn 1
+echo "'The same commands you'd use for your digi, you'd use here!, let me show you'"; read -srn 1
+cat ./.asciiArt/linuxLaptopex; read -srn 1
+echo "'cd would change what directory you are working on'"; read -srn 1
+echo "'ls would show you which files you can access in the directory'"; read -srn 1
+echo "'vim would let you see the file and edit'"; read -srn 1
+echo "'and last but not least, cat would let you peek at a file'"; read -srn 1
+echo "'There's many, many more commands but these are the basics, make sure to come back to learn more if you want boy'"; read -srn 1
+echo "'Now, where was I?, oh, one day, a LINUX scientist managed to bring the programs to life with the use of quantum tunneling and shelling.'"; read -srn 1
+echo "'That explains why they are called digitrons!'"; read -srn 1
+echo "'Yes, boy... '"; read -srn 1
+echo "'Whats wrong grandpa?'"; read -srn 1
+echo "'The creature you saw... that was TUX, the first digitron.'"; read -srn 1
+echo "'No one has seen them in a long, long time. I've got bad feeling about this tornament...'"; read -srn 1
+echo "'This is why I am teaching you a new move'"; read -srn 1
 echo "Which move would you like to learn?"; read -srn 1
 
 selectOption "Heal" "Stun" "Charged attack"
