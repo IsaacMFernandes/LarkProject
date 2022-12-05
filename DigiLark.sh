@@ -669,7 +669,6 @@ echo -e "\n'Golly dangit, boy. Where is my newspaper? Well? What do you have to 
 # Responding to a newspaperless grandpa
 selectOption "Go back and get it" "Make up a lie" "Just tell the truth"
 x=$?
-hasNewspaper=0
 # Go back and get it
 if [ $x -eq 1 ]
     then 
