@@ -432,8 +432,6 @@ function levelUp()
     level=$((level+1))
     for (( index=0; index < digisOwned; index++ ))
     do
-        echo "$digisOwned"
-        echo "$index"
         d=$(gawk -v i="$index" 'NR==((i+2)){print $1}' ./player.dat)
         oldHealth=$(gawk 'NR==1{print int($2)}' ./.digitrons/"$d".digi)
         newHealth=$((oldHealth+25))
@@ -451,7 +449,6 @@ function addMove()
     for (( index=0; index < digisOwned; index++ ))
     do
         d=$(gawk -v i="$index" 'NR==((i+2)){print $1}' ./player.dat)
-        echo "$d"
         echo "$1" >> ./.digitrons/"$d".digi
     done
 }
