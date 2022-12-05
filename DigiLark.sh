@@ -24,6 +24,12 @@ function punchAnimation()
         size="Large"
     fi
 
+    # Check if folder exists
+    if [ ! -d .asciiArt/.punch"$size" ]
+        then echo -e "\nError: $size punch folder not found.\n"
+        return
+    fi
+
     # Save the screen
     tput smcup
 
@@ -32,7 +38,6 @@ function punchAnimation()
     do
         tput clear
         cat "$frame"
-        #echo "$frame"
         sleep 0.1
     done
 
@@ -44,7 +49,7 @@ function punchAnimation()
 
 function kickAnimation()
 {
-    # Follows the same logic as 
+    # Follows the same logic as punch animation
     if [ "$(tput lines)" -lt 30 ] || [ "$(tput cols)" -lt 100 ]
         then echo -e "\nCould not load animation. Please increase your terminal size.\n"
         return
@@ -54,12 +59,16 @@ function kickAnimation()
         size="Large"
     fi
 
+    if [ ! -d .asciiArt/.kick"$size" ]
+        then echo -e "\nError: $size kick folder not found.\n"
+        return
+    fi
+
     tput smcup
     for frame in .asciiArt/.kick"$size"/*
     do
         tput clear
         cat "$frame"
-        #echo "$frame"
         sleep 0.1
     done
     echo "Press any button to continue."
@@ -433,6 +442,17 @@ function levelUp()
     echo "~~~~~~ and their attacks will do 5 more damage ~~~~~~"; read -srn 1
 }
 
+# Function to add a move to all digitrons player owns
+# param 1 - move to add
+function addMove()
+{
+    for (( i=0; i<digisOwned; i++ ))
+    do
+        d=$(gawk 'NR==((i+2)){print $1}' ./player.dat)
+        echo "$1" >> ./.digitrons/"$d".digi
+    done
+}
+
 # Function when the player dies
 function dead()
 {
@@ -457,7 +477,7 @@ echo "Welcome to DigiLark!"
 sleep 1
 
 if [ ! -d ./.asciiArt ]
-    then echo -e "\nWarning: the hidden ascii art folder is missing.\nMake sure you have all the contents of the game before continuing.\n"
+    then echo -e "\nWarning: the art folder (.asciiArt) is missing.\nVisual elements will not load.\n"
     sleep 1
 fi
 
@@ -581,12 +601,12 @@ if [ $x -eq 3 ]
         echo "'Here, this is Pip. You can have him. Now let's PLAY!'"; read -srn 1
         addDigitron "Pip    100    Water" "Punch    10"
         echo "Pip" >> ./player.dat
-        addDigitron "Goofy    20    Fire" "Punch    5" "Kick   10" "Fireth     15"
+        addDigitron "Goofy    20    Fire" "Punch    5" "Kick    10" "Flame    15"
         fight "Pip" "Goofy"
 fi
 
 # Unlocking a new move
-echo "Kick    15" >> ./.digitrons/Pip.digi
+addMove "Kick    15"
 echo -e "\n~~~ You have unlocked a new move: Kick ~~~\n"; read -srn 1
 
 # Kid runs away, drops digitron ball
@@ -630,7 +650,7 @@ if [ $x -eq 1 ]
 elif [ $x -eq 3 ]
     then
         echo "This has caused the digitron to break lose!"; read -srn 1
-        addDigitron "Unknown    200    ?" "Punch    50" "Kick    75" "NuclearExplosion    150"
+        addDigitron "Unknown    300    ?" "Punch    50" "Kick    75" "Nuclear_Explosion    150"
         fight "Pip" "Unknown"
 fi
 
@@ -638,7 +658,7 @@ fi
 echo -e "\n'Alright, lets keep going to gramps', you say."; read -srn 1
 echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
 echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
-addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Waterth    30"
+addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Wave    30"
 fight "Pip" "Croncher"
 
 # When the enemy gets beaten
@@ -658,30 +678,29 @@ done
 if [ $x -eq 1 ]
     then 
         echo -e "\n~~~ You've added Croncher! ~~~\n"; read -srn 1
-        addDigitron "Croncher    35    Water" "Punch    20" "Kick    20"
+        addDigitron "Croncher    35    Water" "Punch    20" "Kick    20" "Wave    20"
         echo "Croncher" >> ./player.dat
 # Leaving the wild digi
 elif [ $x -eq 2 ]
-    then
-        echo "'I'm sure someone will find good use in this one, but not me.'"
+    then echo "'I'm sure someone will find good use in this one, but not me.'"
 fi
 
 # Getting to grandpa's
-echo "Alright, you finally make it to your grandpa's and... "; read -srn 1
+echo "You finally make it to your grandpa's and... "; read -srn 1
 echo "You forgot his newspaper."; read -srn 1
 echo -e "\n'Golly dangit, boy. Where is my newspaper? Well? What do you have to say for yourself?'"; read -srn 1
 
 # Responding to a newspaperless grandpa
 selectOption "Go back and get it" "Make up a lie" "Just tell the truth"
 x=$?
-hasNewspaper=0
+
 # Go back and get it
 if [ $x -eq 1 ]
     then 
-        echo -e "\nYou go into town and get his newspaper ... In the distance you see goofy goggles shining with the sun"; read -srn 1
+        echo -e "\nYou go into town and get his newspaper ... In the distance you see the goofy goggles kid frolicking in a meadow."; read -srn 1
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"; read -srn 1
-        addDigitron "BasicEnemyStrong    40    Water" "Punch    25" "Kick    25" "Waterth    35"
-        fight "Pip" "BasicEnemyStrong"
+        addDigitron "Circuit    50    Earth" "Punch    25" "Kick    25" "Shock    35"
+        fight "Pip" "Circuit"
         hasNewspaper=1
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
@@ -716,16 +735,16 @@ x=$?
 #TODO moves
 if [ $x -eq 1 ]
     then 
-        echo "Heal    20" >> ./.digitrons/Pip.digi
-        echo "~~~ You have unlocked a new move: Heal ~~~"; read -srn 1
+        addMove "Heal    20"
+        echo -e "\n~~~ You have unlocked a new move: Heal ~~~\n"; read -srn 1
 elif [ $x -eq 2 ]
     then
-        echo "Stun    20" >> ./.digitrons/Pip.digi
-        echo "~~~ You have unlocked a new move: Stun ~~~"; read -srn 1
+        addMove "Stun    20"
+        echo -e "\n~~~ You have unlocked a new move: Stun ~~~\n"; read -srn 1
 elif [ $x -eq 3 ]
     then
-        echo "Charged   40" >> ./.digitrons/Pip.digi
-        echo "~~~ You have unlocked a new move: Charged Attack ~~~"; read -srn 1
+        addMove "Charged   40"
+        echo -e "\n~~~ You have unlocked a new move: Charged Attack ~~~\n"; read -srn 1
 fi
 
 echo "'Alright boy, let's try your new move'"; read -srn 1
