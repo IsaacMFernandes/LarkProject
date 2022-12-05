@@ -528,19 +528,23 @@ fi
 # Erasing everything in the player.dat file, to start over with owned digitrons
 echo "$name" > player.dat
 
-# Adding player's name to brackets
-if [ -f ./.asciiArt/bracket ]
-    then sed -i "1 c $name" ./.asciiArt/bracket
-fi
-if [ -f ./.asciiArt/bracket2 ]
-    then sed -i "1 c $name" ./.asciiArt/bracket2
-        sed -i "3 s/$/$name/" ./.asciiArt/bracket2
-fi
-if [ -f ./.asciiArt/bracket3 ]
-    then sed -i "1 c $name" ./.asciiArt/bracket3
-        sed -i "3 s/$/$name/" ./.asciiArt/bracket3
-        sed -i "6 s/$/$name/" ./.asciiArt/bracket3
-fi
+# Resetting brackets
+cat ./.asciiArt/bracket_clean > ./.asciiArt/bracket
+cat ./.asciiArt/bracket2_clean > ./.asciiArt/bracket2
+cat ./.asciiArt/bracket3_clean > ./.asciiArt/bracket3
+
+# Bracket 1
+sed -i "1 c $name" ./.asciiArt/bracket
+
+# Bracket 2
+sed -i "1 c $name" ./.asciiArt/bracket2
+sed -i "3 s/$/$name/" ./.asciiArt/bracket2
+
+# Bracket 3
+sed -i "1 c $name" ./.asciiArt/bracket3
+sed -i "3 s/$/$name/" ./.asciiArt/bracket3
+sed -i "6 s/$/$name/" ./.asciiArt/bracket3
+
 level=0
 sleep 1
 
@@ -825,11 +829,11 @@ addDigitron "Fortune    60    Fire" "Cannon    25" "Bomb    20" "TNT    30"
 fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Fortune"
 
 # Third fight of match 1
-echo -e "\n'ARRRGHHGH... I KNOW YE CANT BEAT THIS 'NE!'"; read -srn 1
+echo -e "\n'ARRRGHHGH... I KNOW YE CANT BEAT THIS ONE!'"; read -srn 1
 addDigitron "JollyRoger    70    Fire" "Cannon    30" "Bomb    25" "Raid    35"
 fight "$(gawk 'NR==2{print $1}' ./player.dat)" "JollyRoger"
 
-echo -e "'arr... I havn't a clue how ye beat me, but yu'v errn'd my rrrespect!'\n"; read -srn 1
+echo -e "\n'arr... I havn't a clue how ye beat me, but yu'v errn'd my rrrespect!'\n"; read -srn 1
 echo "CONGRATULATIONS TO OUR MATCH 1 WINNERS! MOVING ON TO MATCH 2! HERE ARE YOUR STANDINGS!"; read -srn 1
 
 # Loading updated tournament bracket
@@ -837,12 +841,15 @@ if [ -f ./.asciiArt/bracket2 ]
     then cat ./.asciiArt/bracket2; read -srn 1
 fi
 
-
+echo -e "\nYou make your way over to the second battle booth, gleaming with joy from the previous win."; read -srn 1
+echo "As you get closer, you see a small child in the opponent's booth."; read -srn 1
+echo "'Excuse me, little girl. Are you lost?', you ask."; read -srn 1
+echo -e "'How DARE you! I'm your opponent, idiot. I'm gonna take you down loser!'"; read -srn 1
 
 
 
 # End screen
-echo "Thank you for playing!"
+echo -e "\nThank you for playing!"
 if [ -f ./.asciiArt/DigiLark.txt ]
     then cat ./.asciiArt/DigiLark.txt
 fi
