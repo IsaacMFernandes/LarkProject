@@ -456,6 +456,11 @@ trap onExit SIGINT SIGTERM
 echo "Welcome to DigiLark!"
 sleep 1
 
+if [ ! -d ./.asciiArt ]
+    then echo -e "\nWarning: the hidden ascii art folder is missing.\nMake sure you have all the contents of the game before continuing.\n"
+    sleep 1
+fi
+
 # Asking the user if they want to disable animation
 echo -e "\nAt some points in this game, there will be flashing ascii art."
 echo "Would you like to disable these animations? (y/n)"
