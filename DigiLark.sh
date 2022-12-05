@@ -530,8 +530,19 @@ fi
 
 # Erasing everything in the player.dat file, to start over with owned digitrons
 echo "$name" > player.dat
+
+# Adding player's name to brackets
 if [ -f ./.asciiArt/bracket ]
     then sed -i "1 c $name" ./.asciiArt/bracket
+fi
+if [ -f ./.asciiArt/bracket2 ]
+    then sed -i "1 c $name" ./.asciiArt/bracket2
+        sed -i "3 s/$/$name/" ./.asciiArt/bracket2
+fi
+if [ -f ./.asciiArt/bracket3 ]
+    then sed -i "1 c $name" ./.asciiArt/bracket3
+        sed -i "3 s/$/$name/" ./.asciiArt/bracket3
+        sed -i "6 s/$/$name/" ./.asciiArt/bracket3
 fi
 level=0
 sleep 1
@@ -608,7 +619,7 @@ if [ $x -eq 3 ]
         addDigitron "Pip    100    Water" "Punch    10"
         echo "Pip" >> ./player.dat
         addDigitron "Goofy    20    Fire" "Punch    5" "Kick    10" "Flame    15"
-        fight "Pip" "Goofy"
+        fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Goofy"
 fi
 
 # Unlocking a new move
@@ -657,7 +668,7 @@ elif [ $x -eq 3 ]
     then
         echo "This has caused the digitron to break lose!"; read -srn 1
         addDigitron "Unknown    300    ?" "Punch    50" "Kick    75" "Nuclear_Explosion    150"
-        fight "Pip" "Unknown"
+        fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Unknown"
 fi
 
 # Finding a wild digitron
@@ -665,7 +676,7 @@ echo -e "\n'Alright, lets keep going to gramps', you say."; read -srn 1
 echo "As you make your way to grandpa-pa, you see a shortcut."; read -srn 1
 echo "You decide to take it and, all of a sudden, a digitron jumps out at you (...this seems to happen often)."; read -srn 1
 addDigitron "Croncher    40    Water" "Punch    20" "Kick    20" "Wave    30"
-fight "Pip" "Croncher"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Croncher"
 
 # When the enemy gets beaten
 echo -e "\nWhew, that was close. What should you do with the defeated digitron?"
@@ -707,7 +718,7 @@ if [ $x -eq 1 ]
         echo -e "\nYou go into town and get his newspaper ... In the distance you see the goofy goggles kid frolicking in a meadow."; read -srn 1
         echo "You go back to your grandpa's and once again a digitron jumps at you ('This is great training' you think to yourself.)"; read -srn 1
         addDigitron "Circuit    50    Earth" "Punch    25" "Kick    25" "Shock    35"
-        fight "Pip" "Circuit"
+        fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Circuit"
         hasNewspaper=1
         #TODO if you fight this digi you get an upgrade to your digi somehow.... this is the reward for going to get the paper
 # Lie
@@ -756,7 +767,7 @@ fi
 echo "'Alright boy, let's try your new move'"; read -srn 1
 fightWithGramps=1
 addDigitron "Grandpa's_Legendary    1000    Divine" "Punch    100" "Kick    120" "Vaporize    200"
-fight "Pip" "Grandpa's_Legendary"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Grandpa's_Legendary"
 
 # Grandpa destroys player, heals digitron
 echo "Good job $name, now you are ready to go to the tournament"; read -srn 1
@@ -782,9 +793,34 @@ if [ -f ./.asciiArt/bracket ]
     then cat ./.asciiArt/bracket; read -srn 1
 fi
 
-echo -e "\nYou make your way over to your booth and you see someone in the opponent's section."
-echo "Sitting there is a man with an eye patch and wooden leg."
-echo -e "\n'Arrghgh', he mutters"
+echo -e "\nYou make your way over to your booth and you see someone in the opponent's section."; read -srn 1
+echo "Sitting there is a man with an eye patch and wooden leg."; read -srn 1
+echo -e "\n'Arrghgh...', he mutters"; read -srn 1
+echo "'So yer the kid they gave me...'"; read -srn 1
+echo "'Prreparrrre... to be plunderred!'"; read -srn 1
+echo -e "\nATTENTION ALL PARTICIPANTS! MATCH ONE WILL BEGIN SHORTLY!"; read -srn 1
+
+# First fight of match 1
+addDigitron "BlackPearl    50    Fire" "Cannon    20" "Bomb    25" "TNT    30"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "BlackPearl"
+
+# Second fight of match 1
+echo -e "\n'Arrrghgh... how bout ye try this one 'nstead!'"; read -srn 1
+addDigitron "Fortune    60    Fire" "Cannon    25" "Bomb    20" "TNT    30"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "Fortune"
+
+# Third fight of match 1
+echo -e "\n'ARRRGHHGH... I KNOW YE CANT BEAT THIS 'NE!'"; read -srn 1
+addDigitron "JollyRoger    70    Fire" "Cannon    30" "Bomb    25" "Raid    35"
+fight "$(gawk 'NR==2{print $1}' ./player.dat)" "JollyRoger"
+
+echo -e "'arr... I havn't a clue how ye beat me, but yu'v errn'd my rrrespect!'\n"; read -srn 1
+echo "CONGRATULATIONS TO OUR MATCH 1 WINNERS! MOVING ON TO MATCH 2! HERE ARE YOUR STANDINGS!"; read -srn 1
+
+# Loading updated tournament bracket
+if [ -f ./.asciiArt/bracket2 ]
+    then cat ./.asciiArt/bracket2; read -srn 1
+fi
 
 
 
