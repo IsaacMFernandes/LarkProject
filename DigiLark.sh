@@ -530,6 +530,9 @@ fi
 
 # Erasing everything in the player.dat file, to start over with owned digitrons
 echo "$name" > player.dat
+if [ -f ./.asciiArt/bracket ]
+    then sed -i "1 c $name" ./.asciiArt/bracket
+fi
 level=0
 sleep 1
 
@@ -752,7 +755,7 @@ fi
 # Begin fight with grandpa
 echo "'Alright boy, let's try your new move'"; read -srn 1
 fightWithGramps=1
-addDigitron "Grandpa's_Legendary    1000    Grass" "Punch    100" "Kick    200" "Grasth  100"
+addDigitron "Grandpa's_Legendary    1000    Divine" "Punch    100" "Kick    120" "Vaporize    200"
 fight "Pip" "Grandpa's_Legendary"
 
 # Grandpa destroys player, heals digitron
@@ -767,10 +770,28 @@ if [ -f ./.asciiArt/stadium ]
     then cat ./.asciiArt/stadium; read -srn 1
 fi
 
-# TODO
+# Continuing story at stadium
+echo -e "\nLADIES AND GENTLEMEN! WELCOME, TO THE 32nd ANNUAL BASH BATTLES TOURNAMENT!"; read -srn 1
+echo "I HOPE EACH AND EVERYONE OF YOU HAD A SAFE JOURNEY TO SHELL STADIUM."; read -srn 1
+echo "BUT, NOW! IT IS TIME TO SEE WHO IS THE BEST DIGITRON DUELER!"; read -srn 1
+echo -e "\nYou make your way over the concession stand and hand over your ID."; read -srn 1
+echo -e "The lady hands back a laminated poster showing the brackets for the tournament.\n"; read -srn 1
+
+# Loading tournament bracket
+if [ -f ./.asciiArt/bracket ]
+    then cat ./.asciiArt/bracket; read -srn 1
+fi
+
+echo -e "\nYou make your way over to your booth and you see someone in the opponent's section."
+echo "Sitting there is a man with an eye patch and wooden leg."
+echo -e "\n'Arrghgh', he mutters"
+
+
+
+
 
 # End screen
-echo "Tournament to be continued. Thanks for playing!"
+echo "Thank you for playing!"
 if [ -f ./.asciiArt/DigiLark.txt ]
     then cat ./.asciiArt/DigiLark.txt
 fi
